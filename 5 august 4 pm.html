@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D नशा मुक्ति साँप-सीढ़ी खेल</title>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Arial', sans-serif; background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c); min-height: 100vh; padding: 15px; display: flex; justify-content: center; align-items: center; overflow-x: auto; }
+        .game-container { background: rgba(255, 255, 255, 0.95); border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); padding: 25px; max-width: 1400px; width: 100%; position: relative; }
+        .game-header { text-align: center; margin-bottom: 25px; }
+        .game-title { color: #2c3e50; font-size: 2.5em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); background: linear-gradient(45deg, #3498db, #2ecc71); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .game-subtitle { color: #7f8c8d; font-size: 1.2em; margin-bottom: 15px; }
+        .player-setup { background: #f8f9fa; padding: 20px; border-radius: 15px; margin-bottom: 25px; text-align: center; }
+        .player-count { margin-bottom: 15px; }
+        .player-count label { font-weight: bold; margin-right: 10px; color: #2c3e50; }
+        .player-count select { padding: 8px 15px; border: 2px solid #bdc3c7; border-radius: 25px; font-size: 1em; background: white; }
+        .start-game-btn, .toggle-3d-btn { padding: 12px 25px; background: linear-gradient(45deg, #27ae60, #2ecc71); color: white; border: none; border-radius: 25px; font-size: 1.1em; font-weight: bold; cursor: pointer; margin: 0 10px; transition: all 0.3s ease; }
+        .toggle-3d-btn { background: linear-gradient(45deg, #9b59b6, #8e44ad); }
+        .start-game-btn:hover, .toggle-3d-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4); }
+        .game-area { display: none; }
+        .game-area.active { display: block; }
+        .players-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .player-card { background: #f8f9fa; padding: 15px; border-radius: 15px; border: 3px solid transparent; transition: all 0.3s ease; text-align: center; }
+        .player-card.active { border-color: #3498db; background: #e3f2fd; transform: scale(1.05); }
+        .player-name { font-weight: bold; margin-bottom: 8px; font-size: 1.1em; }
+        .player-position { color: #7f8c8d; font-size: 0.9em; }
+        .game-board-container { position: relative; height: 700px; margin-bottom: 25px; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.2); background: #87CEEB; }
+        .board-2d { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: grid; grid-template-columns: repeat(10, 55px); grid-template-rows: repeat(10, 55px); gap: 2px; background: #8B4513; padding: 15px; border-radius: 10px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+        .board-3d { width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
+        .cell { background: #f5f5dc; border: 2px solid #8B4513; display: flex; align-items: center; justify-content: center; position: relative; font-weight: bold; font-size: 12px; color: #333; overflow: hidden; cursor: pointer; transition: all 0.3s ease; }
+        .cell:hover { transform: scale(1.1); z-index: 10; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .cell.awareness { background: linear-gradient(135deg, #f1c40f, #f39c12); color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
+        .cell.support { background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
+        .cell.start { background: linear-gradient(135deg, #90EE90, #32CD32); color: #006400; font-weight: bold; }
+        .cell.end { background: linear-gradient(135deg, #FFD700, #FFA500); color: #B8860B; font-weight: bold; }
+        .snake, .ladder { position: absolute; display: flex; align-items: center; justify-content: center; pointer-events: none; transition: all 0.3s ease; }
+        .snake-fallback, .ladder-fallback { pointer-events: auto; cursor: pointer; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5)); font-size: 30px; }
+        .snake-fallback:hover, .ladder-fallback:hover { transform: scale(1.1); }
+        .game-piece { position: absolute; width: 25px; height: 30px; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; z-index: 10; border: 2px solid rgba(255,255,255,0.5); box-shadow: 0 2px 5px rgba(0,0,0,0.3); transition: all 0.5s ease; }
+        .piece-red { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        .piece-blue { background: linear-gradient(135deg, #3498db, #2980b9); }
+        .piece-green { background: linear-gradient(135deg, #2ecc71, #27ae60); }
+        .piece-yellow { background: linear-gradient(135deg, #f39c12, #d68910); }
+        .controls { display: flex; justify-content: center; align-items: center; gap: 25px; margin-bottom: 25px; flex-wrap: wrap; }
+        .dice { width: 80px; height: 80px; background: white; border: 3px solid #34495e; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 2em; font-weight: bold; color: #34495e; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .dice:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
+        .dice.rolling { animation: roll 0.8s ease-in-out; }
+        @keyframes roll { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(90deg); } 50% { transform: rotate(180deg); } 75% { transform: rotate(270deg); } }
+        .roll-btn, .restart-btn { padding: 12px 25px; background: linear-gradient(45deg, #3498db, #2980b9); color: white; border: none; border-radius: 25px; font-size: 1.1em; font-weight: bold; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4); }
+        .restart-btn { background: linear-gradient(45deg, #e74c3c, #c0392b); box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4); }
+        .roll-btn:hover, .restart-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(52, 152, 219, 0.6); }
+        .roll-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .game-status { text-align: center; font-size: 1.2em; color: #2c3e50; margin-bottom: 15px; padding: 12px; background: #ecf0f1; border-radius: 10px; border-left: 4px solid #3498db; }
+        .progress-container { margin-bottom: 20px; background: #ecf0f1; border-radius: 15px; padding: 15px; }
+        .progress-bar { width: 100%; height: 25px; background: #bdc3c7; border-radius: 12px; overflow: hidden; position: relative; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #27ae60, #2ecc71); width: 0%; transition: width 0.5s ease; border-radius: 12px; }
+        .progress-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: bold; color: #2c3e50; font-size: 0.9em; }
+        .message-popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-width: 500px; width: 90%; z-index: 1000; text-align: center; display: none; }
+        .message-popup.show { display: block; animation: popIn 0.5s ease-out; }
+        @keyframes popIn { 0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; } 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
+        .message-popup h3 { color: #2c3e50; margin-bottom: 15px; font-size: 1.5em; }
+        .message-popup p { color: #7f8c8d; line-height: 1.6; margin-bottom: 20px; }
+        .close-btn { background: #e74c3c; color: white; border: none; padding: 10px 20px; border-radius: 25px; cursor: pointer; font-weight: bold; transition: all 0.3s ease; }
+        .close-btn:hover { background: #c0392b; transform: translateY(-2px); }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; display: none; }
+        .overlay.show { display: block; }
+        .legend { display: flex; justify-content: center; gap: 20px; margin-top: 15px; flex-wrap: wrap; }
+        .legend-item { display: flex; align-items: center; gap: 8px; font-weight: bold; font-size: 0.9em; }
+        .legend-color { width: 20px; height: 20px; border-radius: 4px; }
+        .ladder-color { background: linear-gradient(45deg, #DAA520, #FFD700); }
+        .snake-color { background: linear-gradient(45deg, #cc3333, #ff6666); }
+        .awareness-color { background: #f1c40f; }
+        .support-color { background: #2ecc71; }
+        .message-popup.positive { border-left: 5px solid #27ae60; }
+        .message-popup.negative { border-left: 5px solid #e74c3c; }
+        .message-popup.positive h3 { color: #2980b9; }
+        .message-popup.negative h3 { color: #e74c3c; }
+        #threejs-canvas { width: 100%; height: 100%; border-radius: 15px; display: block; }
+        .mode-instructions { background: rgba(255, 255, 255, 0.9); padding: 10px; border-radius: 10px; margin-bottom: 10px; text-align: center; font-size: 0.9em; color: #2c3e50; }
+        .loading-message { text-align: center; padding: 20px; color: #7f8c8d; }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-header">
+             <h1 class="game-title">🐍🪜 3D नशा मुक्ति साँप-सीढ़ी</h1>
+             <p class="game-subtitle">नशा मुक्ति के बारे में जानें - अब 3D में!</p>
+        </div>
+        
+        <div class="player-setup" id="playerSetup">
+            <div class="player-count">
+                <label for="playerCountSelect">खिलाड़ियों की संख्या:</label>
+                <select id="playerCountSelect">
+                    <option value="2">2 खिलाड़ी</option>
+                    <option value="3">3 खिलाड़ी</option>
+                    <option value="4">4 खिलाड़ी</option>
+                </select>
+                <button class="start-game-btn" onclick="startGame()">खेल शुरू करें</button>
+                <button class="toggle-3d-btn" onclick="toggle3DMode()">3D मोड टॉगल करें</button>
+            </div>
+        </div>
+        
+        <div class="game-area" id="gameArea">
+             <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                    <div class="progress-text" id="progressText">0%</div>
+                </div>
+            </div>
+            <div class="players-info" id="playersInfo"></div>
+            <div class="game-status" id="gameStatus">खेल शुरू करने के लिए पासा फेंकें!</div>
+            <div class="game-board-container" id="gameBoardContainer">
+                <div class="board-2d" id="gameBoard"></div>
+                <canvas class="board-3d" id="threejs-canvas" style="display: none;"></canvas>
+                <div class="mode-instructions" id="modeInstructions" style="display: none;">3D मोड में: कैमरे को घुमाएं, ज़ूम करने के लिए स्क्रॉल करें</div>
+            </div>
+            <div class="controls">
+                <div class="dice" id="dice">🎲</div>
+                <button class="roll-btn" id="rollBtn">पासा फेंकें</button>
+                <button class="restart-btn" onclick="restartGame()">नया खेल</button>
+            </div>
+            <div class="legend">
+                <div class="legend-item"><div class="legend-color ladder-color"></div><span>सीढ़ी</span></div>
+                <div class="legend-item"><div class="legend-color snake-color"></div><span>साँप</span></div>
+                <div class="legend-item"><div class="legend-color awareness-color"></div><span>जागरूकता</span></div>
+                <div class="legend-item"><div class="legend-color support-color"></div><span>सहायता</span></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="overlay" id="overlay"></div>
+    <div class="message-popup" id="messagePopup">
+        <h3 id="popupTitle"></h3>
+        <p id="popupMessage"></p>
+        <button class="close-btn" onclick="closePopup()">समझ गया</button>
+    </div>
+    
+    <!-- Load libraries from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <script>
+        // --- GAME CONFIGURATION AND STATE ---
+        const CONFIG = { BOARD_SIZE: 10, CELL_SIZE: 55 };
+        const awarenessMessages = { 2: "नशा छोड़ो, ज़िंदगी से नाता जोड़ो।", 9: "जो नशे से लड़े, वो सच्चा खिलाड़ी है।", 18: "नशा छोड़कर खेलो ज़िंदगी की असली लूडो।", 24: "खुशहाल जीवन का सूत्र — नशा मुक्त भारत।", 36: "एक नशा, सौ समस्याएँ। इसे आज ही छोड़ें।", 45: "अच्छे दोस्त वही हैं, जो नशे से दूर रखें।", 58: "ताकत है खुद में, नशे में नहीं।", 63: "सपनों की उड़ान नशा नहीं, शिक्षा देती है।", 77: "खेल, कला और पढ़ाई – यही है असली नशा।", 84: "'ना' कहना सीखो — नशा, दबाव और बुरी संगत को।" };
+        const supportMessages = { 5: "Narcotics Control Bureau (NCB) — भारत में नशीली दवाओं के विरुद्ध सबसे प्रमुख संस्था।", 16: "National Drug Dependence Treatment Centre (NDDTC), AIIMS — इलाज और पुनर्वास में अग्रणी।", 27: "Ministry of Social Justice and Empowerment — नशा मुक्ति अभियान की मुख्य संस्था।", 33: "राष्ट्रीय नशा मुक्ति हेल्पलाइन 14446 — सहायता के लिए तुरंत कॉल करें।", 47: "State Anti-Narcotics Task Forces — हर राज्य में नशे के खिलाफ विशेष बल कार्यरत हैं।", 52: "राष्ट्रीय स्वास्थ्य मिशन (NHM) — मानसिक स्वास्थ्य और पुनर्वास में मदद करता है।", 66: "Nasha Mukt Bharat Abhiyan — नशा मुक्त भारत के लिए केंद्र सरकार की बड़ी पहल।", 71: "CARA, NGOs और सामुदायिक समूह — नशा पीड़ितों को पुनर्वास में सहायता देते हैं।", 89: "Youth Red Cross & NSS Volunteers — जागरूकता और नशा मुक्ति शिविरों में मदद करते हैं।", 96: "Police & Excise Departments — नशे के व्यापार पर सख्त निगरानी रखते हैं।" };
+        
+        const originalSnakes = { 99: 79, 87: 24, 74: 53, 68: 40, 55: 37, 42: 22, 34: 12, 29: 9, 17: 7 };
+        const originalLadders = { 4: 14, 11: 32, 23: 44, 38: 59, 49: 67, 65: 85, 72: 91, 81: 98 };
+        const snakes = {}, ladders = {};
+        Object.assign(ladders, originalLadders);
+        Object.entries(originalSnakes).forEach(([start, end]) => { if (!ladders[start]) snakes[start] = end; });
+
+        let gameState = {};
+        let scene, camera, renderer, controls, playerMeshes = [];
+
+        function resetGameState() {
+            gameState = { players: [], currentPlayerIndex: 0, gameStarted: false, is3DMode: false, animationId: null };
+        }
+
+        // --- CORE GAME INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Simple initialization without complex dependency loading
+            initGame();
+        });
+
+        function initGame() {
+            resetGameState();
+            createBoard2D();
+            setupEventListeners();
+        }
+        
+        function setupEventListeners() {
+            document.getElementById('rollBtn').addEventListener('click', rollDice);
+            document.getElementById('dice').addEventListener('click', rollDice);
+            document.getElementById('overlay').addEventListener('click', closePopup);
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        // --- GAME START & RESTART ---
+        function startGame() {
+            const playerCount = parseInt(document.getElementById('playerCountSelect').value);
+            initializePlayers(playerCount);
+            document.getElementById('playerSetup').style.display = 'none';
+            document.getElementById('gameArea').classList.add('active');
+            gameState.gameStarted = true;
+            updateGameStatus();
+            if (gameState.is3DMode && typeof THREE !== 'undefined') {
+                create3DPlayerPieces();
+            }
+        }
+
+        function restartGame() {
+            if (gameState.animationId) cancelAnimationFrame(gameState.animationId);
+            
+            resetGameState();
+            if (renderer) {
+                try {
+                    renderer.dispose();
+                    renderer.forceContextLoss();
+                } catch(e) {}
+            }
+            scene = null; camera = null; renderer = null; controls = null; playerMeshes = [];
+
+            document.getElementById('gameArea').classList.remove('active');
+            document.getElementById('playerSetup').style.display = 'block';
+            document.querySelectorAll('.game-piece').forEach(p => p.remove());
+            document.getElementById('playersInfo').innerHTML = '';
+            document.getElementById('progressFill').style.width = '0%';
+            document.getElementById('progressText').textContent = '0%';
+            document.getElementById('gameStatus').textContent = 'खेल शुरू करने के लिए पासा फेंकें!';
+
+            const btn3D = document.querySelector('.toggle-3d-btn');
+            btn3D.textContent = '3D मोड टॉगल करें';
+            btn3D.disabled = false;
+            
+            closePopup();
+        }
+
+        // --- PLAYER & BOARD SETUP ---
+        function initializePlayers(count) {
+            gameState.players = [];
+            const colors = ['red', 'blue', 'green', 'yellow'];
+            for (let i = 0; i < count; i++) {
+                gameState.players.push({ id: i, name: `खिलाड़ी ${i+1}`, position: 0, color: colors[i] });
+            }
+            createPlayerCards();
+            create2DGamePieces();
+            updateProgress();
+        }
+        
+        // --- 2D BOARD CREATION ---
+        function createBoard2D() {
+            const gameBoard = document.getElementById('gameBoard');
+            gameBoard.innerHTML = '';
+            for (let row = 0; row < 10; row++) {
+                for (let i = 0; i < 10; i++) {
+                    const base = 100 - row * 10;
+                    const pos = (row % 2 === 0) ? base - i : base - 9 + i;
+                    createCell(gameBoard, pos);
+                }
+            }
+            createSnakesAndLadders2D();
+        }
+
+        function createCell(board, pos) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            cell.id = `cell-${pos}`;
+            cell.textContent = pos;
+            if (pos === 1) { cell.classList.add('start'); cell.innerHTML = `🏁<br>${pos}`; }
+            else if (pos === 100) { cell.classList.add('end'); cell.innerHTML = `🏆<br>${pos}`; }
+            else if (awarenessMessages[pos]) { cell.classList.add('awareness'); cell.innerHTML = `💡<br>${pos}`; }
+            else if (supportMessages[pos]) { cell.classList.add('support'); cell.innerHTML = `🤝<br>${pos}`; }
+            cell.addEventListener('click', () => showCellInfo(pos));
+            board.appendChild(cell);
+        }
+
+        function createSnakesAndLadders2D() {
+            const gameBoard = document.getElementById('gameBoard');
+            Object.entries(ladders).forEach(([start, end]) => gameBoard.appendChild(createFallbackElement('ladder', start, end)));
+            Object.entries(snakes).forEach(([start, end]) => gameBoard.appendChild(createFallbackElement('snake', start, end)));
+        }
+
+        function createFallbackElement(type, start, end) {
+            const container = document.createElement('div');
+            container.className = type;
+            container.style.zIndex = (type === 'ladder') ? '6' : '5';
+            const startCoords = get2DCoordinates(start);
+            const endCoords = get2DCoordinates(end);
+            container.style.left = `${Math.min(startCoords.x, endCoords.x)}px`;
+            container.style.top = `${Math.min(startCoords.y, endCoords.y)}px`;
+            container.style.width = `${Math.abs(startCoords.x - endCoords.x) + CONFIG.CELL_SIZE}px`;
+            container.style.height = `${Math.abs(startCoords.y - endCoords.y) +CONFIG.CELL_SIZE}px`;
+
+            const fallback = document.createElement('div');
+            fallback.className = `${type}-fallback`;
+            fallback.innerHTML = (type === 'ladder') ? '🪜' : '🐍';
+            fallback.style.fontSize = `${Math.min(30 + Math.abs(start - end) / 2, 60)}px`;
+            fallback.style.width = '100%';
+            fallback.style.height = '100%';
+            fallback.style.display = 'flex';
+            fallback.style.alignItems = 'center';
+            fallback.style.justifyContent = 'center';
+            container.appendChild(fallback);
+            return container;
+        }
+        
+        function create2DGamePieces() {
+            document.querySelectorAll('.game-piece').forEach(p => p.remove());
+            const board = document.getElementById('gameBoard');
+            gameState.players.forEach((player) => {
+                const piece = document.createElement('div');
+                piece.className = `game-piece piece-${player.color}`;
+                piece.id = `piece-${player.id}`;
+                piece.style.left = '-100px';
+                piece.style.top = '0px';
+                board.appendChild(piece);
+            });
+        }
+        
+        // --- 3D MODE FUNCTIONS (Simplified) ---
+        function initThreeJS() {
+            try {
+                if (typeof THREE === 'undefined') {
+                    console.warn('THREE.js not loaded');
+                    return false;
+                }
+
+                const canvas = document.getElementById('threejs-canvas');
+                const container = document.getElementById('gameBoardContainer');
+                if (!canvas || !container) return false;
+
+                scene = new THREE.Scene();
+                scene.background = new THREE.Color(0x87CEEB);
+                camera = new THREE.PerspectiveCamera(75, container.offsetWidth / container.offsetHeight, 0.1, 1000);
+                camera.position.set(7, 10, 7);
+                
+                renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+                renderer.setSize(container.offsetWidth, container.offsetHeight);
+                renderer.setPixelRatio(window.devicePixelRatio);
+                
+                scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+                const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+                dirLight.position.set(5, 10, 7);
+                scene.add(dirLight);
+
+                // Simple orbit controls simulation
+                let mouseDown = false;
+                let mouseX = 0, mouseY = 0;
+                
+                canvas.addEventListener('mousedown', (e) => { mouseDown = true; mouseX = e.clientX; mouseY = e.clientY; });
+                canvas.addEventListener('mouseup', () => mouseDown = false);
+                canvas.addEventListener('mousemove', (e) => {
+                    if (!mouseDown) return;
+                    const deltaX = e.clientX - mouseX;
+                    const deltaY = e.clientY - mouseY;
+                    camera.position.x = Math.cos(deltaX * 0.01) * 10;
+                    camera.position.z = Math.sin(deltaX * 0.01) * 10;
+                    camera.lookAt(0, 0, 0);
+                    mouseX = e.clientX;
+                    mouseY = e.clientY;
+                });
+
+                create3DBoard();
+                animate3D();
+                return true;
+            } catch (error) {
+                console.error('Error initializing Three.js:', error);
+                return false;
+            }
+        }
+
+        function create3DBoard() {
+            const boardGroup = new THREE.Group();
+            
+            // Create 3D board cells
+            for (let i = 1; i <= 100; i++) {
+                const geometry = new THREE.BoxGeometry(0.8, 0.1, 0.8);
+                let material;
+                
+                if (i === 1) {
+                    material = new THREE.MeshLambertMaterial({ color: 0x32CD32 });
+                } else if (i === 100) {
+                    material = new THREE.MeshLambertMaterial({ color: 0xFFD700 });
+                } else if (awarenessMessages[i]) {
+                    material = new THREE.MeshLambertMaterial({ color: 0xf1c40f });
+                } else if (supportMessages[i]) {
+                    material = new THREE.MeshLambertMaterial({ color: 0x2ecc71 });
+                } else {
+                    material = new THREE.MeshLambertMaterial({ color: 0xf5f5dc });
+                }
+                
+                const cube = new THREE.Mesh(geometry, material);
+                const coords = get3DCoordinates(i);
+                cube.position.set(coords.x, 0, coords.z);
+                boardGroup.add(cube);
+            }
+            
+            // Add 3D snakes and ladders (simplified)
+            Object.entries(snakes).forEach(([start, end]) => {
+                const geometry = new THREE.CylinderGeometry(0.1, 0.1, 2);
+                const material = new THREE.MeshLambertMaterial({ color: 0xff6666 });
+                const snake = new THREE.Mesh(geometry, material);
+                const startPos = get3DCoordinates(parseInt(start));
+                const endPos = get3DCoordinates(parseInt(end));
+                snake.position.set((startPos.x + endPos.x) / 2, 0.5, (startPos.z + endPos.z) / 2);
+                boardGroup.add(snake);
+            });
+            
+            Object.entries(ladders).forEach(([start, end]) => {
+                const geometry = new THREE.BoxGeometry(0.2, 2, 0.1);
+                const material = new THREE.MeshLambertMaterial({ color: 0xDAA520 });
+                const ladder = new THREE.Mesh(geometry, material);
+                const startPos = get3DCoordinates(parseInt(start));
+                const endPos = get3DCoordinates(parseInt(end));
+                ladder.position.set((startPos.x + endPos.x) / 2, 1, (startPos.z + endPos.z) / 2);
+                boardGroup.add(ladder);
+            });
+            
+            scene.add(boardGroup);
+        }
+
+        function create3DPlayerPieces() {
+            playerMeshes.forEach(mesh => scene.remove(mesh));
+            playerMeshes = [];
+            const colors = { red: 0xe74c3c, blue: 0x3498db, green: 0x2ecc71, yellow: 0xf39c12 };
+            gameState.players.forEach(player => {
+                const geometry = new THREE.ConeGeometry(0.3, 0.6, 16);
+                const material = new THREE.MeshLambertMaterial({ color: colors[player.color] });
+                const mesh = new THREE.Mesh(geometry, material);
+                const pos = player.position === 0 ? {x: -6, y:0.3, z:6} : get3DCoordinates(player.position, player.id);
+                mesh.position.set(pos.x, pos.y, pos.z);
+                playerMeshes[player.id] = mesh;
+                scene.add(mesh);
+            });
+        }
+        
+        function animate3D() {
+            if (!gameState.is3DMode || !renderer || !scene || !camera) return;
+            gameState.animationId = requestAnimationFrame(animate3D);
+            renderer.render(scene, camera);
+        }
+        
+        // --- GAMEPLAY LOGIC ---
+        function rollDice() {
+            if (!gameState.gameStarted || document.getElementById('rollBtn').disabled) return;
+            const rollBtn = document.getElementById('rollBtn');
+            const dice = document.getElementById('dice');
+            rollBtn.disabled = true;
+            dice.classList.add('rolling');
+            
+            let rollCount = 0;
+            const rollInterval = setInterval(() => {
+                dice.textContent = Math.floor(Math.random() * 6) + 1;
+                if (++rollCount >= 8) {
+                    clearInterval(rollInterval);
+                    const finalRoll = Math.floor(Math.random() * 6) + 1;
+                    dice.textContent = finalRoll;
+                    dice.classList.remove('rolling');
+                    movePlayer(finalRoll);
+                }
+            }, 100);
+        }
+
+        function movePlayer(steps) {
+            const player = gameState.players[gameState.currentPlayerIndex];
+            const oldPos = player.position;
+            const newPos = Math.min(oldPos + steps, 100);
+            
+            animatePlayerMovement(player, oldPos, newPos, () => {
+                player.position = newPos;
+                updatePlayerCards();
+                processTurnCompletion(player);
+            });
+        }
+
+        function processTurnCompletion(player) {
+            const pos = player.position;
+            let specialMoveTarget = null;
+            let message = { type: '', title: '', text: '' };
+
+            if (ladders[pos]) {
+                specialMoveTarget = ladders[pos];
+                message = { type: 'positive', title: 'सीढ़ी मिली! 🪜', text: `${player.name} को सीढ़ी मिली! ${pos} से ${specialMoveTarget} पर पहुँचे।` };
+            } else if (snakes[pos]) {
+                specialMoveTarget = snakes[pos];
+                message = { type: 'negative', title: 'साँप का डंक! 🐍', text: `${player.name} को साँप ने डंक मारा! ${pos} से ${specialMoveTarget} पर चले गए।` };
+            } else if (awarenessMessages[pos]) {
+                 message = { type: 'positive', title: 'जागरूकता संदेश 💡', text: awarenessMessages[pos] };
+            } else if (supportMessages[pos]) {
+                message = { type: 'positive', title: 'सहायता जानकारी 🤝', text: supportMessages[pos] };
+            }
+            
+            if (message.text) showMessage(message.type, message.title, message.text);
+
+            if (specialMoveTarget !== null) {
+                setTimeout(() => {
+                    animatePlayerMovement(player, pos, specialMoveTarget, () => {
+                        player.position = specialMoveTarget;
+                        updatePlayerCards();
+                        checkForWinOrNextTurn(player);
+                    });
+                }, 1200);
+            } else {
+                checkForWinOrNextTurn(player);
+            }
+        }
+        
+        function checkForWinOrNextTurn(player) {
+            updateProgress();
+            if (player.position === 100) {
+                showMessage('positive', 'विजय! 🏆', `${player.name} ने खेल जीत लिया!`);
+                endGame();
+            } else {
+                setTimeout(() => {
+                    nextPlayer();
+                    document.getElementById('rollBtn').disabled = false;
+                }, 500);
+            }
+        }
+
+        function nextPlayer() {
+            document.getElementById(`player-card-${gameState.currentPlayerIndex}`).classList.remove('active');
+            gameState.currentPlayerIndex = (gameState.currentPlayerIndex + 1) % gameState.players.length;
+            document.getElementById(`player-card-${gameState.currentPlayerIndex}`).classList.add('active');
+            updateGameStatus();
+        }
+
+        function endGame() {
+            gameState.gameStarted = false;
+            document.getElementById('rollBtn').disabled = true;
+        }
+
+        // --- ANIMATION & UI ---
+        function animatePlayerMovement(player, fromPos, toPos, onComplete) {
+            if (gameState.is3DMode && playerMeshes[player.id]) {
+                animatePlayerMovement3D(player, toPos, onComplete);
+            } else {
+                animatePlayerMovement2D(player, toPos, onComplete);
+            }
+        }
+
+        function animatePlayerMovement2D(player, toPos, onComplete) {
+            const piece = document.getElementById(`piece-${player.id}`);
+            if (!piece) return;
+            const coords = get2DCoordinates(toPos, player.id);
+            
+            // Simple CSS transition animation
+            piece.style.transition = 'all 0.8s ease-in-out';
+            piece.style.left = coords.x + 'px';
+            piece.style.top = coords.y + 'px';
+            
+            setTimeout(onComplete, 800);
+        }
+        
+        function animatePlayerMovement3D(player, toPos, onComplete) {
+            const mesh = playerMeshes[player.id];
+            if (!mesh) return;
+            const coords = get3DCoordinates(toPos, player.id);
+            
+            // Simple position animation
+            const startPos = { ...mesh.position };
+            const duration = 800;
+            const startTime = Date.now();
+            
+            function animate() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                mesh.position.x = startPos.x + (coords.x - startPos.x) * progress;
+                mesh.position.y = startPos.y + (coords.y - startPos.y) * progress;
+                mesh.position.z = startPos.z + (coords.z - startPos.z) * progress;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    onComplete();
+                }
+            }
+            animate();
+        }
+
+        function toggle3DMode() {
+            gameState.is3DMode = !gameState.is3DMode;
+            const btn = document.querySelector('.toggle-3d-btn');
+            const board2D = document.getElementById('gameBoard');
+            const canvas3D = document.getElementById('threejs-canvas');
+            const instructions = document.getElementById('modeInstructions');
+
+            if (gameState.is3DMode) {
+                if (typeof THREE === 'undefined') {
+                    gameState.is3DMode = false;
+                    showMessage('negative', 'त्रुटि', '3D लाइब्रेरी लोड नहीं हुई। कृपया पेज को रिफ्रेश करें।');
+                    return;
+                }
+                
+                if (!initThreeJS()) {
+                    gameState.is3DMode = false;
+                    showMessage('negative', 'त्रुटि', '3D मोड शुरू करने में समस्या हुई।');
+                    return;
+                }
+                board2D.style.display = 'none';
+                canvas3D.style.display = 'block';
+                instructions.style.display = 'block';
+                btn.textContent = '2D मोड पर जाएं';
+                if (gameState.gameStarted) create3DPlayerPieces();
+            } else {
+                board2D.style.display = 'grid';
+                canvas3D.style.display = 'none';
+                instructions.style.display = 'none';
+                btn.textContent = '3D मोड टॉगल करें';
+                if (gameState.animationId) cancelAnimationFrame(gameState.animationId);
+            }
+        }
+        
+        function get2DCoordinates(pos, id=0) {
+            if (pos === 0) return { x: -100, y: 0 };
+            const row = Math.floor((pos - 1) / 10);
+            const col = (pos - 1) % 10;
+            let x = (row % 2 === 0) ? col : 9 - col;
+            let y = 9 - row;
+            // Offset for multiple players
+            const offsetX = (id % 2) * 15;
+            const offsetY = Math.floor(id / 2) * 15;
+            return { x: x * (CONFIG.CELL_SIZE + 2) + offsetX, y: y * (CONFIG.CELL_SIZE + 2) + offsetY };
+        }
+
+        function get3DCoordinates(pos, id=0) {
+            if (pos === 0) return { x: -6, y: 0.3, z: 6 };
+            const row = Math.floor((pos - 1) / 10);
+            const col = (pos - 1) % 10;
+            let x = (row % 2 === 0) ? col - 4.5 : 4.5 - col;
+            let z = 4.5 - row;
+            // Offset for multiple players
+            x += (id % 2 === 0) ? -0.15 : 0.15;
+            z += (id < 2) ? -0.15 : 0.15;
+            return { x, y: 0.3, z };
+        }
+
+        function createPlayerCards() {
+            const container = document.getElementById('playersInfo');
+            container.innerHTML = '';
+            gameState.players.forEach((player, index) => {
+                const card = document.createElement('div');
+                card.className = 'player-card';
+                card.id = `player-card-${index}`;
+                if (index === 0) card.classList.add('active');
+                card.innerHTML = `<div class="player-name" style="color:${player.color}">${player.name}</div><div class="player-position">स्थिति: 0</div>`;
+                container.appendChild(card);
+            });
+        }
+        
+        function updatePlayerCards() {
+            gameState.players.forEach((player, index) => {
+                const card = document.getElementById(`player-card-${index}`);
+                if(card) card.querySelector('.player-position').textContent = `स्थिति: ${player.position}`;
+            });
+        }
+        
+        function updateGameStatus() {
+            const player = gameState.players[gameState.currentPlayerIndex];
+            document.getElementById('gameStatus').textContent = `${player.name} की बारी - पासा फेंकें!`;
+        }
+        
+        function updateProgress() {
+            const maxPos = gameState.players.length > 0 ? Math.max(...gameState.players.map(p => p.position)) : 0;
+            const progress = (maxPos / 100) * 100;
+            document.getElementById('progressFill').style.width = `${progress}%`;
+            document.getElementById('progressText').textContent = `${Math.round(progress)}%`;
+        }
+        
+        function showMessage(type, title, text) {
+            const popup = document.getElementById('messagePopup');
+            popup.className = `message-popup show ${type}`;
+            document.getElementById('popupTitle').textContent = title;
+            document.getElementById('popupMessage').textContent = text;
+            document.getElementById('overlay').classList.add('show');
+        }
+
+        function closePopup() { 
+            document.getElementById('messagePopup').classList.remove('show'); 
+            document.getElementById('overlay').classList.remove('show'); 
+        }
+        
+        function showCellInfo(pos) { 
+            if (awarenessMessages[pos]) {
+                showMessage('positive', 'जागरूकता संदेश 💡', awarenessMessages[pos]);
+            } else if (supportMessages[pos]) {
+                showMessage('positive', 'सहायता जानकारी 🤝', supportMessages[pos]);
+            }
+        }
+        
+        function onWindowResize() {
+            if (gameState.is3DMode && renderer && camera) {
+                const container = document.getElementById('gameBoardContainer');
+                camera.aspect = container.offsetWidth / container.offsetHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.offsetWidth, container.offsetHeight);
+            }
+        }
+    </script>
+</body>
+</html>
