@@ -178,12 +178,20 @@
             color: #B8860B;
             font-weight: bold;
         }
-        .snake {
-            position: absolute;
-            z-index: 5;
-            pointer-events: none;
-        }
-        .snake-body {
+      .snake {
+    position: absolute;
+    z-index: 5;
+    pointer-events: none;
+}
+.snake-image {
+    object-fit: contain;
+    image-rendering: crisp-edges;
+    -webkit-image-rendering: crisp-edges;
+    -ms-image-rendering: crisp-edges;
+    pointer-events: none;
+    transform-origin: 0 50%;
+}
+snake-body {
             position: absolute;
             background: linear-gradient(45deg, #cc3333, #ff6666);
             border-radius: 15px;

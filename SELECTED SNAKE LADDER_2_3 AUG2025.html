@@ -204,6 +204,18 @@
             left: 2px;
             font-size: 8px;
         }
+.snake-image {
+    transition: all 0.3s ease;
+}
+
+.snake-image:hover {
+    transform: scale(1.05);
+    filter: brightness(1.2) !important;
+}
+
+.snake-container {
+    pointer-events: none;
+}
         .ladder {
             position: absolute;
             z-index: 4;
@@ -576,7 +588,7 @@
             4: 14, 11: 32, 23: 44, 38: 59, 49: 67, 65: 85, 72: 91, 81: 98
         };
         
-        /*   Snake Image Mapping with working URLs
+        // Snake Image Mapping with working URLs
         const snakeImageMap = {
   snake1: './snake/SVG/Snake-01.svg',
   snake2: './snake/SVG/Snake-02.svg',
@@ -587,18 +599,7 @@
   snake7: './snake/SVG/Snake-07.svg',
   snake8: './snake/SVG/Snake-08.svg',
   snake9: './snake/SVG/Snake-09.svg'
-};   */
- const snakeImageMap = {
-            snake1: "https://ramankumarasija.github.io/snakes/snake/SVG/Snake-01.svg",
-            snake2: "https://ramankumarasija.github.io/snakes/snake/SVG/Snake-02.svg",
-            snake3: "https://ramankumarasija.github.io/snakes/snake/SVG/Snake-03.svg",
-            snake4: "https://ramankumarasija.github.io/snakes/snake/SVG/Snake-04.svg",
-            snake5: "https://ramankumarasija.github.io/snakes/snake/SVG/Snake-05.svg",
-            snake6: "https://ramankumarasija.github.io/snakes/snake/SVG/Snake-06.svg",
-            snake7: "https://ramankumarasija.github.io/snakes/snake/SVG/Snake-07.svg",
-            snake8: "https://ramankumarasija.github.io/snakes/snake/SVG/Snake-08.svg",
-            snake9: "https://ramankumarasija.github.io/snakes/snake/SVG/Snake-09.svg"
-        };
+};
 
         // STRATEGIC SNAKE ASSIGNMENT based on threat level and visual impact
         const strategicSnakeAssignment = {
@@ -792,7 +793,127 @@
             }
             
             return { row, col };
+        } 
+/ ENHANCED createSnakeWithStrategicAssignment - Optimized for SVG
+function createSnakeWithStrategicAssignment(start, end, board) {
+    const startPos = getCellPosition(start);
+    const endPos = getCellPosition(end);
+    
+    const snake = document.createElement('div');
+    snake.className = 'snake';
+    
+    // Calculate snake position and size
+    const startX = startPos.col * 52 + 26;
+    const startY = startPos.row * 52 + 26;
+    const endX = endPos.col * 52 + 26;
+    const endY = endPos.row * 52 + 26;
+    
+    const length = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
+    const angle = Math.atan2(endY - startY, endX - startX) * (180 / Math.PI);
+    
+    // *** STRATEGIC SNAKE SELECTION ***
+    let snakeConfig = strategicSnakeAssignment[start];
+    
+    // If no predefined assignment, use difficulty-based fallback
+    if (!snakeConfig) {
+        const difficulty = getSnakeDifficulty(start);
+        const availableSnakes = fallbackSnakesByDifficulty[difficulty];
+        const randomSnake = availableSnakes[Math.floor(Math.random() * availableSnakes.length)];
+        
+        snakeConfig = {
+            image: randomSnake,
+            info: getGenericSnakeInfo(start),
+            height: getSnakeHeight(start),
+            zIndex: Math.floor(start / 20) + 1
+        };
+    }
+    
+    // Create snake container
+    const snakeContainer = document.createElement('div');
+    snakeContainer.style.position = 'absolute';
+    snakeContainer.style.left = startX + 'px';
+    snakeContainer.style.top = startY + 'px';
+    snakeContainer.style.transformOrigin = '0 50%';
+    snakeContainer.style.transform = `rotate(${angle}deg)`;
+    snakeContainer.style.zIndex = snakeConfig.zIndex;
+    snakeContainer.style.pointerEvents = 'none';
+    snakeContainer.style.width = length + 'px';
+    snakeContainer.style.height = snakeConfig.height + 'px';
+    snakeContainer.style.overflow = 'hidden';
+    
+    // Create snake image element
+    const snakeImage = document.createElement('img');
+    snakeImage.src = snakeConfig.image;
+    snakeImage.className = 'snake-image strategic-snake';
+    snakeImage.style.width = '100%';
+    snakeImage.style.height = '100%';
+    snakeImage.style.objectFit = 'contain';
+    snakeImage.style.imageRendering = 'crisp-edges';
+    snakeImage.style.WebkitImageRendering = 'crisp-edges';
+    snakeImage.style.msImageRendering = 'crisp-edges';
+    
+    // Add visual effects for higher threat snakes
+    if (start >= 90) {
+        snakeImage.style.filter = 'drop-shadow(0 0 15px rgba(255, 0, 0, 0.8)) brightness(1.1)';
+        snakeImage.style.animation = 'snakePulse 2s infinite';
+    } else if (start >= 70) {
+        snakeImage.style.filter = 'drop-shadow(0 0 8px rgba(255, 100, 0, 0.6)) brightness(1.05)';
+    } else if (start >= 50) {
+        snakeImage.style.filter = 'drop-shadow(0 0 5px rgba(255, 200, 0, 0.4))';
+    }
+    
+    // *** COMPREHENSIVE ERROR HANDLING WITH FORMAT FALLBACKS ***
+    snakeImage.onerror = function() {
+        console.warn(`SVG snake image ${snakeConfig.image} failed to load`);
+        
+        // Create a fallback snake using CSS
+        this.style.display = 'none';
+        
+        const fallbackSnake = document.createElement('div');
+        fallbackSnake.style.position = 'absolute';
+        fallbackSnake.style.width = '100%';
+        fallbackSnake.style.height = '100%';
+        fallbackSnake.style.background = 'linear-gradient(45deg, #cc3333, #ff6666)';
+        fallbackSnake.style.borderRadius = '20px';
+        fallbackSnake.style.border = '2px solid #990000';
+        
+        // Add snake head
+        const snakeHead = document.createElement('div');
+        snakeHead.style.position = 'absolute';
+        snakeHead.style.right = '0';
+        snakeHead.style.top = '50%';
+        snakeHead.style.transform = 'translateY(-50%)';
+        snakeHead.style.width = '20px';
+        snakeHead.style.height = '20px';
+        snakeHead.style.background = 'radial-gradient(circle, #ff4444, #cc0000)';
+        snakeHead.style.borderRadius = '50%';
+        snakeHead.style.border = '2px solid #990000';
+        
+        fallbackSnake.appendChild(snakeHead);
+        snakeContainer.appendChild(fallbackSnake);
+    };
+    
+    snakeContainer.appendChild(snakeImage);
+    snake.appendChild(snakeContainer);
+    
+    // Enhanced click event with haptic feedback simulation
+    snake.addEventListener('click', () => {
+        showMessage(snakeConfig.info.title, snakeConfig.info.message, 'negative');
+        
+        // Visual feedback for interaction
+        snakeImage.style.transform = 'scale(1.1)';
+        setTimeout(() => {
+            snakeImage.style.transform = 'scale(1)';
+        }, 200);
+        
+        // Special effects for high-threat snakes
+        if (start >= 80) {
+            snake.style.animation = 'snakeWarning 1s ease-in-out';
         }
+    });
+    
+    board.appendChild(snake);
+}
         
         // ENHANCED createSnake function with strategic assignment
        /* function createSnakeWithStrategicAssignment(start, end, board) {
@@ -879,7 +1000,7 @@
             });
             
             board.appendChild(snake);
-        } */
+        } 
 // ENHANCED createSnakeWithStrategicAssignment - Optimized for SVG
 function createSnakeWithStrategicAssignment(start, end, board) {
     const startPos = getCellPosition(start);
@@ -1029,7 +1150,7 @@ function createSnakeWithStrategicAssignment(start, end, board) {
     
     board.appendChild(snake);
 }
-
+*/
         // FALLBACK SVG CREATOR - Creates snake programmatically if all images fail
 function createFallbackSVGSnake(width, height, angle, threatLevel) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
