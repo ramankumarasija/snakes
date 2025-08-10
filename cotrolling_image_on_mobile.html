@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVG Image Control</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 10px;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            overflow-x: hidden;
+        }
+
+        .container {
+            position: relative;
+            width: calc(100vw - 20px);
+            height: 70vh;
+            background: linear-gradient(45deg, #e3f2fd, #f3e5f5);
+            border: 2px dashed #666;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .svg-image {
+            position: absolute;
+            /* Mobile-optimized Size Control */
+            width: 80px;
+            height: 60px;
+            
+            /* Mobile Position Control (X, Y coordinates) */
+            left: 50px;   /* X coordinate */
+            top: 30px;    /* Y coordinate */
+            
+            /* Rotation Control */
+            transform: rotate(45deg);
+            
+            /* Mobile-optimized styling */
+            border: 1px solid #2196f3;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .svg-image:hover, .svg-image:active {
+            transform: rotate(45deg) scale(1.05);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+        }
+
+        /* Mobile-optimized positioned images */
+        .snake-1 {
+            width: 40px;
+            height: 30px;
+            left: 150px;
+            top: 100px;
+            transform: rotate(0deg);
+        }
+
+        .snake-2 {
+            width: 60px;
+            height: 45px;
+            left: 200px;
+            top: 50px;
+            transform: rotate(90deg);
+        }
+
+        .snake-3 {
+            width: 35px;
+            height: 25px;
+            left: 80px;
+            top: 150px;
+            transform: rotate(-30deg);
+        }
+
+        /* Mobile Controls panel */
+        .controls {
+            position: relative;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 10px;
+            max-width: 100%;
+        }
+
+        .control-group {
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 3px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            margin-bottom: 5px;
+            height: 35px;
+        }
+
+        input[type="number"] {
+            width: 80px;
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .coordinate-display {
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 8px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        /* Mobile-specific styles */
+        @media (max-width: 768px) {
+            body {
+                padding: 5px;
+            }
+            
+            .container {
+                height: 50vh;
+                width: calc(100vw - 10px);
+            }
+            
+            .controls {
+                padding: 10px;
+            }
+            
+            .control-group {
+                margin-bottom: 10px;
+            }
+            
+            label {
+                font-size: 13px;
+            }
+            
+            input[type="range"] {
+                height: 30px;
+            }
+            
+            input[type="number"] {
+                width: 70px;
+                padding: 6px;
+                font-size: 14px;
+            }
+            
+            .coordinate-display {
+                font-size: 11px;
+                padding: 6px;
+            }
+        }
+
+        /* Touch-friendly buttons */
+        .quick-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+
+        .quick-btn {
+            padding: 10px 15px;
+            background: #2196f3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            touch-action: manipulation;
+            min-width: 44px;
+            min-height: 44px;
+        }
+
+        .quick-btn:active {
+            background: #1976d2;
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="container">
+        <!-- Main controllable SVG image -->
+        <img 
+            src="https://raw.githubusercontent.com/ramankumarasija/snakes/master/snake/SVG/Snake-01.svg" 
+            alt="Snake SVG" 
+            class="svg-image" 
+            id="mainSnake"
+        >
+        
+        <!-- Additional positioned examples -->
+        <img 
+            src="https://raw.githubusercontent.com/ramankumarasija/snakes/master/snake/SVG/Snake-01.svg" 
+            alt="Snake SVG" 
+            class="svg-image snake-1"
+        >
+        
+        <img 
+            src="https://raw.githubusercontent.com/ramankumarasija/snakes/master/snake/SVG/Snake-01.svg" 
+            alt="Snake SVG" 
+            class="svg-image snake-2"
+        >
+        
+        <img 
+            src="https://raw.githubusercontent.com/ramankumarasija/snakes/master/snake/SVG/Snake-01.svg" 
+            alt="Snake SVG" 
+            class="svg-image snake-3"
+        >
+    </div>
+
+    <!-- Interactive Controls -->
+    <div class="controls">
+        <h3>Image Controls</h3>
+        
+        <div class="control-group">
+            <label>Width (px):</label>
+            <input type="range" id="widthSlider" min="20" max="150" value="80">
+            <input type="number" id="widthInput" min="20" max="150" value="80">
+        </div>
+        
+        <div class="control-group">
+            <label>Height (px):</label>
+            <input type="range" id="heightSlider" min="15" max="120" value="60">
+            <input type="number" id="heightInput" min="15" max="120" value="60">
+        </div>
+        
+        <div class="control-group">
+            <label>X Position:</label>
+            <input type="range" id="xSlider" min="0" max="300" value="50">
+            <input type="number" id="xInput" min="0" max="300" value="50">
+        </div>
+        
+        <div class="control-group">
+            <label>Y Position:</label>
+            <input type="range" id="ySlider" min="0" max="250" value="30">
+            <input type="number" id="yInput" min="0" max="250" value="30">
+        </div>
+        
+        <div class="control-group">
+            <label>Rotation (degrees):</label>
+            <input type="range" id="rotationSlider" min="-180" max="180" value="45">
+            <input type="number" id="rotationInput" min="-180" max="180" value="45">
+        </div>
+        
+        <!-- Touch-friendly quick controls -->
+        <div class="quick-controls">
+            <button class="quick-btn" onclick="resetPosition()">Reset</button>
+            <button class="quick-btn" onclick="centerImage()">Center</button>
+            <button class="quick-btn" onclick="rotateQuick(-15)">↺</button>
+            <button class="quick-btn" onclick="rotateQuick(15)">↻</button>
+        </div>
+    </div>
+
+    <!-- Coordinate Display -->
+    <div class="coordinate-display" id="coordDisplay">
+        Position: (50, 30) | Size: 80x60 | Rotation: 45°
+    </div>
+
+    <script>
+        const mainSnake = document.getElementById('mainSnake');
+        const coordDisplay = document.getElementById('coordDisplay');
+        
+        // Control elements
+        const widthSlider = document.getElementById('widthSlider');
+        const heightSlider = document.getElementById('heightSlider');
+        const xSlider = document.getElementById('xSlider');
+        const ySlider = document.getElementById('ySlider');
+        const rotationSlider = document.getElementById('rotationSlider');
+        
+        const widthInput = document.getElementById('widthInput');
+        const heightInput = document.getElementById('heightInput');
+        const xInput = document.getElementById('xInput');
+        const yInput = document.getElementById('yInput');
+        const rotationInput = document.getElementById('rotationInput');
+        
+        function updateImage() {
+            const width = widthSlider.value;
+            const height = heightSlider.value;
+            const x = xSlider.value;
+            const y = ySlider.value;
+            const rotation = rotationSlider.value;
+            
+            // Apply styles
+            mainSnake.style.width = width + 'px';
+            mainSnake.style.height = height + 'px';
+            mainSnake.style.left = x + 'px';
+            mainSnake.style.top = y + 'px';
+            mainSnake.style.transform = `rotate(${rotation}deg)`;
+            
+            // Update coordinate display
+            coordDisplay.textContent = `Position: (${x}, ${y}) | Size: ${width}x${height} | Rotation: ${rotation}°`;
+            
+            // Sync inputs
+            widthInput.value = width;
+            heightInput.value = height;
+            xInput.value = x;
+            yInput.value = y;
+            rotationInput.value = rotation;
+        }
+        
+        function syncSliderToInput(slider, input) {
+            input.addEventListener('input', () => {
+                slider.value = input.value;
+                updateImage();
+            });
+        }
+        
+        // Event listeners for sliders
+        widthSlider.addEventListener('input', updateImage);
+        heightSlider.addEventListener('input', updateImage);
+        xSlider.addEventListener('input', updateImage);
+        ySlider.addEventListener('input', updateImage);
+        rotationSlider.addEventListener('input', updateImage);
+        
+        // Sync number inputs with sliders
+        syncSliderToInput(widthSlider, widthInput);
+        syncSliderToInput(heightSlider, heightInput);
+        syncSliderToInput(xSlider, xInput);
+        syncSliderToInput(ySlider, yInput);
+        syncSliderToInput(rotationSlider, rotationInput);
+        
+        // Click/Touch to position functionality
+        document.getElementById('container').addEventListener('click', function(e) {
+            const rect = this.getBoundingClientRect();
+            const x = e.clientX - rect.left - (mainSnake.offsetWidth / 2);
+            const y = e.clientY - rect.top - (mainSnake.offsetHeight / 2);
+            
+            xSlider.value = Math.max(0, Math.min(300, x));
+            ySlider.value = Math.max(0, Math.min(250, y));
+            updateImage();
+        });
+        
+        // Touch support
+        document.getElementById('container').addEventListener('touchend', function(e) {
+            e.preventDefault();
+            const rect = this.getBoundingClientRect();
+            const touch = e.changedTouches[0];
+            const x = touch.clientX - rect.left - (mainSnake.offsetWidth / 2);
+            const y = touch.clientY - rect.top - (mainSnake.offsetHeight / 2);
+            
+            xSlider.value = Math.max(0, Math.min(300, x));
+            ySlider.value = Math.max(0, Math.min(250, y));
+            updateImage();
+        });
+        
+        // Mobile-optimized keyboard controls
+        document.addEventListener('keydown', function(e) {
+            const step = 5; // Smaller step for mobile
+            let currentX = parseInt(xSlider.value);
+            let currentY = parseInt(ySlider.value);
+            let currentRotation = parseInt(rotationSlider.value);
+            
+            switch(e.key) {
+                case 'ArrowUp':
+                    ySlider.value = Math.max(0, currentY - step);
+                    break;
+                case 'ArrowDown':
+                    ySlider.value = Math.min(250, currentY + step);
+                    break;
+                case 'ArrowLeft':
+                    xSlider.value = Math.max(0, currentX - step);
+                    break;
+                case 'ArrowRight':
+                    xSlider.value = Math.min(300, currentX + step);
+                    break;
+                case 'r':
+                case 'R':
+                    rotationSlider.value = (currentRotation + 15) % 360;
+                    break;
+                case 'q':
+                case 'Q':
+                    rotationSlider.value = (currentRotation - 15) % 360;
+                    break;
+            }
+            updateImage();
+        });
+        
+        // Touch-friendly quick control functions
+        function resetPosition() {
+            xSlider.value = 50;
+            ySlider.value = 30;
+            widthSlider.value = 80;
+            heightSlider.value = 60;
+            rotationSlider.value = 0;
+            updateImage();
+        }
+        
+        function centerImage() {
+            const containerRect = document.getElementById('container').getBoundingClientRect();
+            xSlider.value = (containerRect.width / 2) - (mainSnake.offsetWidth / 2);
+            ySlider.value = (containerRect.height / 2) - (mainSnake.offsetHeight / 2);
+            updateImage();
+        }
+        
+        function rotateQuick(degrees) {
+            let currentRotation = parseInt(rotationSlider.value);
+            rotationSlider.value = (currentRotation + degrees) % 360;
+            updateImage();
+        }
+        
+        // Prevent zoom on double tap for iOS
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function (event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+    </script>
+</body>
+</html>
