@@ -1,0 +1,1652 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D नशा मुक्ति साँप-सीढ़ी खेल</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            min-height: 100vh;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: auto;
+        }
+        .game-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            padding: 25px;
+            max-width: 1200px;
+            width: 100%;
+            position: relative;
+        }
+        .game-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .game-title {
+            color: #2c3e50;
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        .game-subtitle {
+            color: #7f8c8d;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+        .player-setup {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .player-count {
+            margin-bottom: 15px;
+        }
+        .player-count label {
+            font-weight: bold;
+            margin-right: 10px;
+            color: #2c3e50;
+        }
+        .player-count select {
+            padding: 8px 15px;
+            border: 2px solid #bdc3c7;
+            border-radius: 25px;
+            font-size: 1em;
+            background: white;
+        }
+        .start-game-btn {
+            padding: 12px 25px;
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-left: 15px;
+            transition: all 0.3s ease;
+        }
+        .start-game-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+        }
+        .game-area {
+            display: none;
+        }
+        .game-area.active {
+            display: block;
+        }
+        .players-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .player-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 15px;
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        .player-card.active {
+            border-color: #3498db;
+            background: #e3f2fd;
+            transform: scale(1.05);
+        }
+        .player-name {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+        .player-position {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        .game-board-container {
+            position: relative;
+            height: 600px;
+            margin-bottom: 25px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            background: #87CEEB;
+        }
+        .board {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: grid;
+            grid-template-columns: repeat(10, 50px);
+            grid-template-rows: repeat(10, 50px);
+            gap: 2px;
+            background: #8B4513;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+        .cell {
+            background: #f5f5dc;
+            border: 2px solid #8B4513;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            font-weight: bold;
+            font-size: 12px;
+            color: #333;
+            overflow: visible;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .cell:hover {
+            transform: scale(1.1);
+            z-index: 10;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .cell.awareness {
+            background: linear-gradient(135deg, #f1c40f, #f39c12);
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+        .cell.support {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+        .cell.start {
+            background: linear-gradient(135deg, #90EE90, #32CD32);
+            color: #006400;
+            font-weight: bold;
+        }
+        .cell.end {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #B8860B;
+            font-weight: bold;
+        }
+
+        /* Enhanced Snake Styling with Dynamic Sizing */
+        .snake {
+            position: absolute;
+            z-index: 15;
+            pointer-events: all;
+            cursor: pointer;
+        }
+
+        .snake-image {
+            position: absolute;
+            object-fit: contain;
+            image-rendering: crisp-edges;
+            -webkit-image-rendering: crisp-edges;
+            -ms-image-rendering: crisp-edges;
+            pointer-events: all;
+            transform-origin: center center;
+            border-radius: 8px;
+            opacity: 0.9;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+            transition: all 0.3s ease;
+            cursor: pointer;
+            animation: snakeBreathing 3s ease-in-out infinite;
+        }
+
+        /* Breathing Animation */
+        @keyframes snakeBreathing {
+            0%, 100% { 
+                transform: scale(1);
+                filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+            }
+            50% { 
+                transform: scale(1.05);
+                filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+            }
+        }
+
+        /* Hover Effects */
+        .snake-image:hover {
+            opacity: 1;
+            filter: drop-shadow(0 6px 12px rgba(255,0,0,0.7)) brightness(1.2);
+            transform: scale(1.1) !important;
+            animation: snakeHover 0.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes snakeHover {
+            0% { filter: drop-shadow(0 6px 12px rgba(255,0,0,0.7)) brightness(1.2); }
+            100% { filter: drop-shadow(0 8px 16px rgba(255,0,0,0.9)) brightness(1.3); }
+        }
+
+        /* Click Animation */
+        .snake-image.clicked {
+            animation: snakeClick 1s ease-in-out;
+        }
+
+        @keyframes snakeClick {
+            0% { transform: scale(1); }
+            25% { transform: scale(2); filter: brightness(1.5) saturate(1.5); }
+            50% { transform: scale(2.2); filter: brightness(1.8) saturate(2); }
+            75% { transform: scale(1.8); filter: brightness(1.3) saturate(1.3); }
+            100% { transform: scale(1); filter: brightness(1) saturate(1); }
+        }
+
+        /* Flickering Effect */
+        @keyframes snakeFlicker {
+            0%, 100% { opacity: 0.9; }
+            10% { opacity: 0.3; }
+            20% { opacity: 1; }
+            30% { opacity: 0.2; }
+            40% { opacity: 1; }
+            50% { opacity: 0.4; }
+            60% { opacity: 1; }
+            70% { opacity: 0.3; }
+            80% { opacity: 1; }
+            90% { opacity: 0.2; }
+        }
+
+        .snake-image.flickering {
+            animation: snakeFlicker 0.5s ease-in-out;
+        }
+
+        /* High threat snake effects */
+        .snake-image.extreme-threat {
+            animation: snakeBreathing 2s ease-in-out infinite, snakePulse 3s ease-in-out infinite;
+            filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.7));
+        }
+
+        @keyframes snakePulse {
+            0%, 100% { filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.7)); }
+            50% { filter: drop-shadow(0 0 20px rgba(255, 0, 0, 1)); }
+        }
+
+        .ladder {
+            position: absolute;
+            z-index: 4;
+            pointer-events: none;
+        }
+        .ladder-rail {
+            background: linear-gradient(to right, #DAA520, #FFD700);
+            border: 2px solid #B8860B;
+            position: absolute;
+        }
+        .ladder-rung {
+            background: linear-gradient(to bottom, #DAA520, #B8860B);
+            border: 1px solid #996600;
+            position: absolute;
+        }
+        .game-piece {
+            position: absolute;
+            width: 20px;
+            height: 25px;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            z-index: 10;
+            border: 2px solid rgba(255,255,255,0.5);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            transition: all 0.5s ease;
+        }
+        .piece-red { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        .piece-blue { background: linear-gradient(135deg, #3498db, #2980b9); }
+        .piece-green { background: linear-gradient(135deg, #2ecc71, #27ae60); }
+        .piece-yellow { background: linear-gradient(135deg, #f39c12, #d68910); }
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 25px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        .dice {
+            width: 70px;
+            height: 70px;
+            background: white;
+            border: 3px solid #34495e;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #34495e;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .dice:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+        .dice.rolling {
+            animation: roll 0.8s ease-in-out;
+        }
+        @keyframes roll {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(90deg); }
+            50% { transform: rotate(180deg); }
+            75% { transform: rotate(270deg); }
+        }
+        .roll-btn {
+            padding: 12px 25px;
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+        }
+        .roll-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(52, 152, 219, 0.6);
+        }
+        .roll-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .restart-btn {
+            padding: 10px 20px;
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-left: 15px;
+            transition: all 0.3s ease;
+        }
+        .restart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+        .game-status {
+            text-align: center;
+            font-size: 1.2em;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            padding: 12px;
+            background: #ecf0f1;
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+        }
+        .progress-container {
+            margin-bottom: 20px;
+            background: #ecf0f1;
+            border-radius: 15px;
+            padding: 15px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #bdc3c7;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #27ae60, #2ecc71);
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 0.9em;
+        }
+        .message-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 500px;
+            width: 90%;
+            z-index: 1000;
+            text-align: center;
+            display: none;
+        }
+        .message-popup.show {
+            display: block;
+            animation: popIn 0.5s ease-out;
+        }
+        @keyframes popIn {
+            0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+        .message-popup h3 {
+            color: #2c3e50;
+            margin-bottom: 12px;
+            font-size: 1.4em;
+        }
+        .message-popup p {
+            color: #7f8c8d;
+            line-height: 1.6;
+            margin-bottom: 18px;
+        }
+        .close-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .close-btn:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: none;
+        }
+        .overlay.show {
+            display: block;
+        }
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        .legend-color {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+        }
+        .ladder-color {
+            background: linear-gradient(45deg, #DAA520, #FFD700);
+        }
+        .snake-color {
+            background: linear-gradient(45deg, #cc3333, #ff6666);
+        }
+        .awareness-color {
+            background: #f1c40f;
+        }
+        .support-color {
+            background: #2ecc71;
+        }
+        .message-popup.positive {
+            border-left: 5px solid #27ae60;
+        }
+        .message-popup.negative {
+            border-left: 5px solid #e74c3c;
+        }
+        .message-popup.positive h3 {
+            color: #2980b9;
+        }
+        .message-popup.negative h3 {
+            color: #e74c3c;
+        }
+        .game-summary {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            border-left: 4px solid #3498db;
+        }
+        .game-summary h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .stat-item {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .stat-value {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #3498db;
+        }
+        .stat-label {
+            font-size: 0.9em;
+            color: #7f8c8d;
+        }
+        .debug-info {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            z-index: 9999;
+            display: none;
+        }
+        .debug-info.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-header">
+            <h1 class="game-title">🐍🪜 3D नशा मुक्ति साँप-सीढ़ी</h1>
+            <p class="game-subtitle">नशा मुक्ति के बारे में जानें</p>
+        </div>
+        
+        <div class="player-setup" id="playerSetup">
+            <div class="player-count">
+                <label for="playerCountSelect">खिलाड़ियों की संख्या:</label>
+                <select id="playerCountSelect">
+                    <option value="2">2 खिलाड़ी</option>
+                    <option value="3">3 खिलाड़ी</option>
+                    <option value="4">4 खिलाड़ी</option>
+                </select>
+                <button class="start-game-btn" onclick="startGame()">खेल शुरू करें</button>
+            </div>
+        </div>
+        
+        <div class="game-area" id="gameArea">
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                    <div class="progress-text" id="progressText">0%</div>
+                </div>
+            </div>
+            <div class="players-info" id="playersInfo"></div>
+            <div class="game-status" id="gameStatus">
+                खेल शुरू करने के लिए पासा फेंकें!
+            </div>
+            <div class="game-board-container" id="gameBoardContainer">
+                <div class="board" id="gameBoard">
+                    <!-- Board cells will be generated by JavaScript -->
+                </div>
+            </div>
+            <div class="controls">
+                <div class="dice" id="dice" onclick="rollDice()">🎲</div>
+                <button class="roll-btn" id="rollBtn" onclick="rollDice()">पासा फेंकें</button>
+                <button class="restart-btn" onclick="restartGame()">नया खेल</button>
+            </div>
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color ladder-color"></div>
+                    <span>सीढ़ी</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color snake-color"></div>
+                    <span>साँप</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color awareness-color"></div>
+                    <span>जागरूकता</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color support-color"></div>
+                    <span>सहायता</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="overlay" id="overlay"></div>
+    <div class="message-popup" id="messagePopup">
+        <h3 id="popupTitle"></h3>
+        <p id="popupMessage"></p>
+        <button class="close-btn" onclick="closePopup()">समझ गया</button>
+    </div>
+    
+    <!-- Debug Info -->
+    <div class="debug-info" id="debugInfo">
+        Dice: <span id="debugDice">-</span><br>
+        Player: <span id="debugPlayer">-</span><br>
+        Old Pos: <span id="debugOldPos">-</span><br>
+        New Pos: <span id="debugNewPos">-</span><br>
+        Steps: <span id="debugSteps">-</span>
+    </div>
+    
+    <script>
+// Enable debug mode - set to false to hide debug info
+const DEBUG_MODE = true;
+
+// Game data
+const awarenessMessages = {
+    2: "नशा छोड़ो, ज़िंदगी से नाता जोड़ो।",
+    9: "जो नशे से लड़े, वो सच्चा खिलाड़ी है।",
+    18: "नशा छोड़कर खेलो ज़िंदगी की असली लूडो।",
+    24: "खुशहाल जीवन का सूत्र — नशा मुक्त भारत।",
+    36: "एक नशा, सौ समस्याएँ। इसे आज ही छोड़ें।",
+    45: "अच्छे दोस्त वही हैं, जो नशे से दूर रखें।",
+    58: "ताकत है खुद में, नशे में नहीं।",
+    63: "सपनों की उड़ान नशा नहीं, शिक्षा देती है।",
+    77: "खेल, कला और पढ़ाई – यही है असली नशा।",
+    84: "'ना' कहना सीखो — नशा, दबाव और बुरी संगत को।"
+};
+
+const supportMessages = {
+    5: "Narcotics Control Bureau (NCB) — भारत में नशीली दवाओं के विरुद्ध सबसे प्रमुख संस्था।",
+    16: "National Drug Dependence Treatment Centre (NDDTC), AIIMS — इलाज और पुनर्वास में अग्रणी।",
+    27: "Ministry of Social Justice and Empowerment — नशा मुक्ति अभियान की मुख्य संस्था।",
+    33: "राष्ट्रीय नशा मुक्ति हेल्पलाइन 14446 — सहायता के लिए तुरंत कॉल करें।",
+    47: "State Anti-Narcotics Task Forces — हर राज्य में नशे के खिलाफ विशेष बल कार्यरत हैं।",
+    52: "राष्ट्रीय स्वास्थ्य मिशन (NHM) — मानसिक स्वास्थ्य और पुनर्वास में मदद करता है।",
+    66: "Nasha Mukt Bharat Abhiyan — नशा मुक्त भारत के लिए केंद्र सरकार की बड़ी पहल।",
+    71: "CARA, NGOs और सामुदायिक समूह — नशा पीड़ितों को पुनर्वास में सहायता देते हैं।",
+    89: "Youth Red Cross & NSS Volunteers — जागरूकता और नशा मुक्ति शिविरों में मदद करते हैं।",
+    96: "Police & Excise Departments — नशे के व्यापार पर सख्त निगरानी रखते हैं।"
+};
+
+const snakes = {
+    99: 79, 87: 24, 74: 53, 68: 40, 55: 37, 42: 22, 34: 12, 29: 9, 17: 7
+};
+
+const ladders = {
+    4: 14, 11: 32, 23: 44, 38: 59, 49: 67, 65: 85, 72: 91, 81: 98
+};
+
+const snakeImageMap = {
+    snake1: "https://raw.githubusercontent.com/ramankumarasija/snakes/93d31a792a03b7ce9735b4b2208abcdc2dd9655b/3Dsnakes/noBGpngCompressed/3dsnpng9.png",
+    snake2: "https://raw.githubusercontent.com/ramankumarasija/snakes/93d31a792a03b7ce9735b4b2208abcdc2dd9655b/3Dsnakes/noBGpngCompressed/3dsnpng2.png",
+    snake3: "https://raw.githubusercontent.com/ramankumarasija/snakes/93d31a792a03b7ce9735b4b2208abcdc2dd9655b/3Dsnakes/noBGpngCompressed/3dsnpng4.png",
+    snake4: "https://raw.githubusercontent.com/ramankumarasija/snakes/93d31a792a03b7ce9735b4b2208abcdc2dd9655b/3Dsnakes/noBGpngCompressed/3dsnpng1.png",
+    snake5: "https://raw.githubusercontent.com/ramankumarasija/snakes/93d31a792a03b7ce9735b4b2208abcdc2dd9655b/3Dsnakes/noBGpngCompressed/3dsnpng3.png",
+    snake6: "https://raw.githubusercontent.com/ramankumarasija/snakes/93d31a792a03b7ce9735b4b2208abcdc2dd9655b/3Dsnakes/noBGpngCompressed/3dsnpng5.png",
+    snake7: "https://raw.githubusercontent.com/ramankumarasija/snakes/93d31a792a03b7ce9735b4b2208abcdc2dd9655b/3Dsnakes/noBGpngCompressed/3dsnpng7.png",
+    snake8: "https://raw.githubusercontent.com/ramankumarasija/snakes/93d31a792a03b7ce9735b4b2208abcdc2dd9655b/3Dsnakes/noBGpngCompressed/3dsnpng10.png",
+    snake9: "https://raw.githubusercontent.com/ramankumarasija/snakes/93d31a792a03b7ce9735b4b2208abcdc2dd9655b/3Dsnakes/noBGpngCompressed/3dsnpng8.png"
+};
+
+// Function to calculate snake length and determine width dynamically
+function calculateSnakeLength(startPos, endPos) {
+    const distance = Math.abs(startPos - endPos);
+    return distance;
+}
+
+function getSnakeWidthByLength(length) {
+    // Base width calculation: longer snakes are wider
+    // Length 1-10: width 20-30px
+    // Length 11-20: width 30-40px
+    // Length 21-30: width 40-50px
+    // Length 31+: width 50-60px
+    if (length <= 10) return 20 + length;
+    if (length <= 20) return 30 + (length - 10);
+    if (length <= 30) return 40 + (length - 20);
+    return Math.min(60, 50 + (length - 30));
+}
+
+// Strategic snake assignment with dynamic sizing
+function getStrategicSnakeConfig(startPos, endPos) {
+    const length = calculateSnakeLength(startPos, endPos);
+    const width = getSnakeWidthByLength(length);
+    
+    const strategicSnakeAssignment = {
+        99: {
+            image: snakeImageMap.snake7,
+            info: {
+                title: 'राजा कोबरा - किंग स्नेक 👑🐍',
+                message: `सबसे खतरनाक साँप! लंबाई ${length} खानों की। नशे की लत का राजा - सबसे ज्यादा नुकसान पहुँचाता है।`
+            },
+            width: width,
+            zIndex: 15
+        },
+        87: {
+            image: snakeImageMap.snake2,
+            info: {
+                title: 'हरा वाइपर - ग्रीन वेनम 🐍☠️',
+                message: `मुंह खोलकर डराता है। लंबाई ${length} खानों की। नशे का जहर भी ऐसे ही तुरंत असर करता है।`
+            },
+            width: width,
+            zIndex: 12
+        },
+        74: {
+            image: snakeImageMap.snake1,
+            info: {
+                title: 'धारीदार अजगर - स्ट्राइप्ड पायथन 🐍',
+                message: `धीरे-धीरे जकड़ता है। लंबाई ${length} खानों की। नशा भी ऐसे ही आपको नीचे ले जाता है।`
+            },
+            width: width,
+            zIndex: 10
+        },
+        68: {
+            image: snakeImageMap.snake5,
+            info: {
+                title: 'नीला पैटर्न स्नेक - ब्लू प्रिंट 🔷🐍',
+                message: `खूबसूरत पैटर्न लेकिन खतरनाक। लंबाई ${length} खानों की। नशा भी पहले आकर्षक लगता है।`
+            },
+            width: width,
+            zIndex: 8
+        },
+        55: {
+            image: snakeImageMap.snake3,
+            info: {
+                title: 'भूरा अजगर - ब्राउन पायथन 🤎🐍',
+                message: `शांत दिखता है लेकिन शक्तिशाली। लंबाई ${length} खानों की। नशे की छुपी हुई ताकत।`
+            },
+            width: width,
+            zIndex: 6
+        },
+        42: {
+            image: snakeImageMap.snake9,
+            info: {
+                title: 'मिट्टी का साँप - अर्थ स्नेक 🌍🐍',
+                message: `जमीन से जुड़ा हुआ। लंबाई ${length} खानों की। नशा भी ऐसा ही है।`
+            },
+            width: width,
+            zIndex: 5
+        },
+        34: {
+            image: snakeImageMap.snake8,
+            info: {
+                title: 'हरा पेड़ी साँप - ट्री स्नेक 🌳🐍',
+                message: `छोटा लेकिन चुस्त। लंबाई ${length} खानों की। नशे की शुरुआत भी ऐसी ही होती है।`
+            },
+            width: width,
+            zIndex: 4
+        },
+        29: {
+            image: snakeImageMap.snake5,
+            info: {
+                title: 'छोटा नीला साँप - स्माल ब्लू 🐍',
+                message: `आकार में छोटा, नुकसान में बड़ा। लंबाई ${length} खानों की।`
+            },
+            width: width,
+            zIndex: 3
+        },
+        17: {
+            image: snakeImageMap.snake8,
+            info: {
+                title: 'नन्हा साँप - टाइनी थ्रेट 🐍',
+                message: `सबसे छोटा लेकिन फिर भी खतरनाक। लंबाई ${length} खानों की। हर नशा नुकसानदायक है।`
+            },
+            width: width,
+            zIndex: 2
+        }
+    };
+
+    return strategicSnakeAssignment[startPos];
+}
+
+const fallbackSnakesByDifficulty = {
+    extreme: [snakeImageMap.snake7, snakeImageMap.snake4, snakeImageMap.snake2],
+    hard: [snakeImageMap.snake1, snakeImageMap.snake6, snakeImageMap.snake5],
+    medium: [snakeImageMap.snake3, snakeImageMap.snake9],
+    easy: [snakeImageMap.snake8]
+};
+
+// Game state
+let players = [];
+let currentPlayer = 0;
+let gameStarted = false;
+let gameStats = {
+    totalMoves: 0,
+    snakesHit: 0,
+    laddersUsed: 0,
+    awarenessMessages: 0,
+    supportMessages: 0,
+    startTime: null
+};
+
+// Audio context for snake hiss sound
+let audioContext;
+
+function initAudio() {
+    try {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    } catch (e) {
+        console.log("Audio not supported:", e);
+    }
+}
+
+function playSnakeHiss() {
+    if (!audioContext) {
+        initAudio();
+    }
+
+    if (audioContext) {
+        try {
+            // Create a more realistic hiss sound
+            const noiseBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.8, audioContext.sampleRate);
+            const noiseData = noiseBuffer.getChannelData(0);
+            
+            // Generate white noise for hiss
+            for (let i = 0; i < noiseData.length; i++) {
+                noiseData[i] = Math.random() * 2 - 1;
+            }
+            
+            const noiseSource = audioContext.createBufferSource();
+            noiseSource.buffer = noiseBuffer;
+            
+            const filter = audioContext.createBiquadFilter();
+            filter.type = 'highpass';
+            filter.frequency.value = 2000; // High frequency for hiss sound
+            
+            const gainNode = audioContext.createGain();
+            
+            noiseSource.connect(filter);
+            filter.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.8);
+            
+            noiseSource.start(audioContext.currentTime);
+            noiseSource.stop(audioContext.currentTime + 0.8);
+        } catch (e) {
+            console.log("Error playing hiss sound:", e);
+        }
+    }
+}
+
+function updateDebugInfo(dice, player, oldPos, newPos, steps) {
+    if (!DEBUG_MODE) return;
+    
+    document.getElementById('debugInfo').classList.add('show');
+    document.getElementById('debugDice').textContent = dice;
+    document.getElementById('debugPlayer').textContent = player ? player.name : '-';
+    document.getElementById('debugOldPos').textContent = oldPos || '-';
+    document.getElementById('debugNewPos').textContent = newPos || '-';
+    document.getElementById('debugSteps').textContent = steps || '-';
+}
+
+function createBoard() {
+    const board = document.getElementById('gameBoard');
+    board.innerHTML = '';
+    
+    // Create cells (100 to 1) - CORRECTED CELL NUMBERING
+    for (let row = 0; row < 10; row++) {
+        for (let col = 0; col < 10; col++) {
+            const cellNumber = getCellNumber(row, col);
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            cell.id = `cell-${cellNumber}`;
+            cell.textContent = cellNumber;
+            
+            // Apply special cell styling
+            if (cellNumber === 1) {
+                cell.className += ' start';
+            } else if (cellNumber === 100) {
+                cell.className += ' end';
+            } else if (awarenessMessages[cellNumber]) {
+                cell.className += ' awareness';
+            } else if (supportMessages[cellNumber]) {
+                cell.className += ' support';
+            }
+            
+            // Add click event for cell information
+            cell.addEventListener('click', () => showCellInfo(cellNumber));
+            
+            board.appendChild(cell);
+        }
+    }
+    
+    // Add snakes and ladders
+    addSnakesAndLadders();
+}
+
+// CORRECTED: Proper snake and ladder board cell numbering
+function getCellNumber(row, col) {
+    // Calculate which row from bottom (0-based)
+    const rowFromBottom = 9 - row;
+    
+    // Calculate the base number for this row
+    const baseNumber = rowFromBottom * 10;
+    
+    if (rowFromBottom % 2 === 0) {
+        // Even rows (0, 2, 4, 6, 8) from bottom: left to right (1-10, 21-30, 41-50, 61-70, 81-90)
+        return baseNumber + col + 1;
+    } else {
+        // Odd rows (1, 3, 5, 7, 9) from bottom: right to left (11-20, 31-40, 51-60, 71-80, 91-100)
+        return baseNumber + (10 - col);
+    }
+}
+
+// CORRECTED: Proper position calculation function
+function getCellPosition(cellNumber) {
+    // Calculate which row from bottom (0-based)
+    const rowFromBottom = Math.floor((cellNumber - 1) / 10);
+    // Calculate actual row from top (0-based)
+    const row = 9 - rowFromBottom;
+    
+    // Calculate column based on row direction
+    let col;
+    const posInRow = (cellNumber - 1) % 10;
+    
+    if (rowFromBottom % 2 === 0) {
+        // Even rows from bottom: left to right
+        col = posInRow;
+    } else {
+        // Odd rows from bottom: right to left
+        col = 9 - posInRow;
+    }
+    
+    return { row, col };
+}
+
+// Enhanced createSnake function with proper positioning and dynamic sizing
+function createSnakeWithEnhancedEffects(start, end, board) {
+    const startPos = getCellPosition(start);
+    const endPos = getCellPosition(end);
+    const length = calculateSnakeLength(start, end);
+    
+    const snake = document.createElement('div');
+    snake.className = 'snake';
+    
+    // Calculate proper positioning - snakes should be placed at start cell center
+    const startX = 10 + startPos.col * 52 + 25; // Center of start cell with padding
+    const startY = 10 + startPos.row * 52 + 25; // Center of start cell with padding
+    
+    // Get snake config with dynamic sizing
+    let snakeConfig = getStrategicSnakeConfig(start, end);
+    if (!snakeConfig) {
+        const difficulty = getSnakeDifficulty(start);
+        const availableSnakes = fallbackSnakesByDifficulty[difficulty];
+        const randomSnake = availableSnakes[Math.floor(Math.random() * availableSnakes.length)];
+        
+        snakeConfig = {
+            image: randomSnake,
+            info: getGenericSnakeInfo(start, length),
+            width: getSnakeWidthByLength(length),
+            zIndex: Math.floor(start / 20) + 1
+        };
+    }
+    
+    // Create snake image element
+    const snakeImage = document.createElement('img');
+    snakeImage.src = snakeConfig.image;
+    snakeImage.className = 'snake-image';
+    
+    // Add extreme threat class for high-level snakes
+    if (start >= 90) {
+        snakeImage.classList.add('extreme-threat');
+    }
+    
+    // Position snake at the center of start cell with dynamic width
+    snakeImage.style.width = snakeConfig.width + 'px';
+    snakeImage.style.height = snakeConfig.width + 'px'; // Keep it square for better appearance
+    snakeImage.style.position = 'absolute';
+    snakeImage.style.left = (startX - snakeConfig.width/2) + 'px'; // Center horizontally
+    snakeImage.style.top = (startY - snakeConfig.width/2) + 'px';  // Center vertically
+    snakeImage.style.zIndex = snakeConfig.zIndex;
+    snakeImage.style.pointerEvents = 'all';
+    snakeImage.style.cursor = 'pointer';
+    
+    // Enhanced click event with animations and sound
+    snakeImage.addEventListener('click', (e) => {
+        e.stopPropagation();
+        
+        // Play hiss sound
+        playSnakeHiss();
+        
+        // Add click animation classes
+        snakeImage.classList.add('clicked', 'flickering');
+        
+        // Remove animation classes after animation completes
+        setTimeout(() => {
+            snakeImage.classList.remove('clicked');
+        }, 1000);
+        
+        setTimeout(() => {
+            snakeImage.classList.remove('flickering');
+        }, 500);
+        
+        // Show message
+        showMessage(snakeConfig.info.title, snakeConfig.info.message, 'negative');
+    });
+    
+    // Error handling for image loading
+    snakeImage.onerror = function() {
+        console.warn(`Snake image ${snakeConfig.image} failed to load`);
+        const difficulty = getSnakeDifficulty(start);
+        const fallbackOptions = fallbackSnakesByDifficulty[difficulty];
+        
+        for (let option of fallbackOptions) {
+            if (option !== snakeConfig.image) {
+                this.src = option;
+                break;
+            }
+        }
+    };
+    
+    snake.appendChild(snakeImage);
+    board.appendChild(snake);
+}
+
+function createLadder(start, end, board) {
+    const startPos = getCellPosition(start);
+    const endPos = getCellPosition(end);
+    
+    const ladder = document.createElement('div');
+    ladder.className = 'ladder';
+    
+    // Calculate ladder position and size with padding
+    const startX = 10 + startPos.col * 52 + 25;
+    const startY = 10 + startPos.row * 52 + 25;
+    const endX = 10 + endPos.col * 52 + 25;
+    const endY = 10 + endPos.row * 52 + 25;
+    
+    const length = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
+    const angle = Math.atan2(endY - startY, endX - startX) * (180 / Math.PI);
+    
+    // Create ladder rails
+    const leftRail = document.createElement('div');
+    leftRail.className = 'ladder-rail';
+    leftRail.style.width = '4px';
+    leftRail.style.height = length + 'px';
+    leftRail.style.left = startX - 8 + 'px';
+    leftRail.style.top = startY + 'px';
+    leftRail.style.transformOrigin = '50% 0%';
+    leftRail.style.transform = `rotate(${angle}deg)`;
+    
+    const rightRail = document.createElement('div');
+    rightRail.className = 'ladder-rail';
+    rightRail.style.width = '4px';
+    rightRail.style.height = length + 'px';
+    rightRail.style.left = startX + 8 + 'px';
+    rightRail.style.top = startY + 'px';
+    rightRail.style.transformOrigin = '50% 0%';
+    rightRail.style.transform = `rotate(${angle}deg)`;
+    
+    ladder.appendChild(leftRail);
+    ladder.appendChild(rightRail);
+    
+    // Create ladder rungs
+    const rungCount = Math.max(3, Math.floor(length / 20));
+    for (let i = 1; i <= rungCount; i++) {
+        const rung = document.createElement('div');
+        rung.className = 'ladder-rung';
+        rung.style.width = '20px';
+        rung.style.height = '3px';
+        
+        const rungX = startX - 10 + ((endX - startX) * i / (rungCount + 1));
+        const rungY = startY + ((endY - startY) * i / (rungCount + 1));
+        
+        rung.style.left = rungX + 'px';
+        rung.style.top = rungY + 'px';
+        rung.style.transform = `rotate(${angle}deg)`;
+        
+        ladder.appendChild(rung);
+    }
+    
+    // Add click event for ladder information
+    ladder.addEventListener('click', () => {
+        const ladderLength = Math.abs(end - start);
+        showMessage('सीढ़ी की जानकारी 🪜', 
+            `यह सीढ़ी स्थिति ${start} से ${end} तक जाती है। लंबाई ${ladderLength} खानों की। नशा मुक्ति के रास्ते पर यह एक अच्छा कदम है।`, 
+            'positive');
+    });
+    
+    board.appendChild(ladder);
+}
+
+function getSnakeDifficulty(startPosition) {
+    if (startPosition >= 90) return 'extreme';
+    if (startPosition >= 70) return 'hard';
+    if (startPosition >= 40) return 'medium';
+    return 'easy';
+}
+
+function getGenericSnakeInfo(startPosition, length) {
+    const difficulty = getSnakeDifficulty(startPosition);
+    const infoMap = {
+        extreme: {
+            title: 'अति खतरनाक साँप ⚠️🐍',
+            message: `यह बेहद खतरनाक साँप है! लंबाई ${length} खानों की। नशे की लत भी इसी तरह जीवन को बर्बाद करती है।`
+        },
+        hard: {
+            title: 'खतरनाक साँप 🐍⚡',
+            message: `खतरनाक साँप से सावधान रहें। लंबाई ${length} खानों की। नशा भी ऐसे ही नुकसान पहुंचाता है।`
+        },
+        medium: {
+            title: 'मध्यम साँप 🐍',
+            message: `मध्यम आकार का साँप भी खतरनाक है। लंबाई ${length} खानों की। हर तरह का नशा हानिकारक है।`
+        },
+        easy: {
+            title: 'छोटा साँप 🐍',
+            message: `छोटा हो या बड़ा, हर साँप से बचना चाहिए। लंबाई ${length} खानों की। नशा भी ऐसा ही है।`
+        }
+    };
+    
+    return infoMap[difficulty];
+}
+
+function addSnakesAndLadders() {
+    const board = document.getElementById('gameBoard');
+    
+    // Add snakes with enhanced effects and dynamic sizing
+    Object.entries(snakes).forEach(([start, end]) => {
+        createSnakeWithEnhancedEffects(parseInt(start), parseInt(end), board);
+    });
+    
+    // Add ladders
+    Object.entries(ladders).forEach(([start, end]) => {
+        createLadder(parseInt(start), parseInt(end), board);
+    });
+}
+
+function showCellInfo(cellNumber) {
+    if (awarenessMessages[cellNumber]) {
+        showMessage('जागरूकता संदेश 💡', awarenessMessages[cellNumber], 'positive');
+    } else if (supportMessages[cellNumber]) {
+        showMessage('सहायता संसाधन 🤝', supportMessages[cellNumber], 'positive');
+    } else if (cellNumber === 1) {
+        showMessage('शुरुआत 🎯', 'यहाँ से आपकी नशा मुक्ति की यात्रा शुरू होती है!', 'positive');
+    } else if (cellNumber === 100) {
+        showMessage('लक्ष्य 🏆', 'बधाई हो! आपने नशा मुक्त जीवन का लक्ष्य हासिल किया!', 'positive');
+    } else {
+        showMessage(`स्थिति ${cellNumber}`, 'नशा मुक्ति की यात्रा में आगे बढ़ते रहें!', 'neutral');
+    }
+}
+
+// CORRECTED: Create player tokens with correct initial positioning
+function createPlayerTokens() {
+    // Remove existing tokens
+    document.querySelectorAll('.game-piece').forEach(piece => piece.remove());
+    
+    const colors = ['red', 'blue', 'green', 'yellow'];
+    
+    // Get position of cell 1 (start position)
+    const startCellPos = getCellPosition(1);
+    
+    players.forEach((player, index) => {
+        const piece = document.createElement('div');
+        piece.className = `game-piece piece-${colors[index]}`;
+        piece.id = `piece-${index}`;
+        
+        // Position relative to the board
+        const offsetX = (index % 2) * 15 - 7.5;
+        const offsetY = Math.floor(index / 2) * 15 - 7.5;
+        
+        // Calculate position based on cell position with padding
+        const baseX = 10 + startCellPos.col * 52 + 25; // Center of start cell
+        const baseY = 10 + startCellPos.row * 52 + 25; // Center of start cell
+        
+        piece.style.left = (baseX + offsetX - 10) + 'px'; // -10 to center the piece
+        piece.style.top = (baseY + offsetY - 12.5) + 'px'; // -12.5 to center the piece
+        
+        document.getElementById('gameBoard').appendChild(piece);
+    });
+}
+
+// CORRECTED: Move player token to correct position with padding
+function movePlayerToken(playerIndex, targetCell) {
+    const piece = document.getElementById(`piece-${playerIndex}`);
+    
+    if (!piece) return;
+    
+    // Get correct position for target cell with padding
+    const targetPos = getCellPosition(targetCell);
+    
+    // Calculate position with offset for multiple players
+    const playersOnCell = players.filter(p => p.position === targetCell);
+    const indexOnCell = playersOnCell.findIndex(p => p.id === players[playerIndex].id);
+    
+    const offsetX = (indexOnCell % 2) * 15 - 7.5;
+    const offsetY = Math.floor(indexOnCell / 2) * 15 - 7.5;
+    
+    const newX = 10 + targetPos.col * 52 + 25 + offsetX - 10; // Center with padding
+    const newY = 10 + targetPos.row * 52 + 25 + offsetY - 12.5; // Center with padding
+    
+    // Animate movement
+    piece.style.transition = 'all 1s ease-in-out';
+    piece.style.left = newX + 'px';
+    piece.style.top = newY + 'px';
+    piece.style.transform = 'scale(1.2)';
+    
+    // Reset scale after animation
+    setTimeout(() => {
+        piece.style.transform = 'scale(1)';
+    }, 1000);
+}
+
+function startGame() {
+    const playerCount = parseInt(document.getElementById('playerCountSelect').value);
+    const playerNames = ['लाल खिलाड़ी', 'नीला खिलाड़ी', 'हरा खिलाड़ी', 'पीला खिलाड़ी'];
+    
+    players = [];
+    currentPlayer = 0;
+    
+    // Initialize audio
+    initAudio();
+    
+    // Reset game stats
+    gameStats = {
+        totalMoves: 0,
+        snakesHit: 0,
+        laddersUsed: 0,
+        awarenessMessages: 0,
+        supportMessages: 0,
+        startTime: Date.now()
+    };
+    
+    for (let i = 0; i < playerCount; i++) {
+        players.push({
+            id: i + 1,
+            name: playerNames[i],
+            position: 1, // FIXED: Start at position 1, not 0
+            color: `player-${i + 1}`,
+            moves: 0
+        });
+    }
+    
+    document.getElementById('playerSetup').style.display = 'none';
+    document.getElementById('gameArea').classList.add('active');
+    
+    createBoard();
+    createPlayerTokens();
+    createPlayerInfo();
+    updateGameStatus();
+    updateProgressBar();
+    gameStarted = true;
+    
+    // Initialize debug info
+    updateDebugInfo('-', null, '-', '-', '-');
+}
+
+function restartGame() {
+    // Reset game state
+    players = [];
+    currentPlayer = 0;
+    gameStarted = false;
+    gameStats = {
+        totalMoves: 0,
+        snakesHit: 0,
+        laddersUsed: 0,
+        awarenessMessages: 0,
+        supportMessages: 0,
+        startTime: null
+    };
+    
+    // Hide debug info
+    document.getElementById('debugInfo').classList.remove('show');
+    
+    // Reset progress bar
+    document.getElementById('progressFill').style.width = '0%';
+    document.getElementById('progressText').textContent = '0%';
+    
+    // Show setup screen
+    document.getElementById('gameArea').classList.remove('active');
+    document.getElementById('playerSetup').style.display = 'block';
+    
+    // Reset dice
+    document.getElementById('dice').textContent = '🎲';
+    document.getElementById('rollBtn').disabled = false;
+    
+    // Remove any existing summary
+    const existingSummary = document.querySelector('.game-summary');
+    if (existingSummary) {
+        existingSummary.remove();
+    }
+}
+
+function createPlayerInfo() {
+    const playersInfo = document.getElementById('playersInfo');
+    playersInfo.innerHTML = '';
+    
+    players.forEach((player, index) => {
+        const playerCard = document.createElement('div');
+        playerCard.className = `player-card ${index === currentPlayer ? 'active' : ''}`;
+        playerCard.id = `player-card-${index}`;
+        playerCard.innerHTML = `
+            <div class="player-name" style="color: ${getPlayerColor(player.color)}">${player.name}</div>
+            <div class="player-position">स्थिति: ${player.position}</div>
+        `;
+        playersInfo.appendChild(playerCard);
+    });
+}
+
+function updatePlayerInfo() {
+    players.forEach((player, index) => {
+        const card = document.getElementById(`player-card-${index}`);
+        if (card) {
+            card.className = `player-card ${index === currentPlayer ? 'active' : ''}`;
+            card.querySelector('.player-position').textContent = `स्थिति: ${player.position}`;
+        }
+    });
+}
+
+function getPlayerColor(colorClass) {
+    const colors = {
+        'player-1': '#e74c3c',
+        'player-2': '#3498db',
+        'player-3': '#2ecc71',
+        'player-4': '#f39c12'
+    };
+    return colors[colorClass] || '#2c3e50';
+}
+
+function updateProgressBar() {
+    const maxPosition = Math.max(...players.map(p => p.position));
+    const progress = (maxPosition / 100) * 100;
+    
+    document.getElementById('progressFill').style.width = progress + '%';
+    document.getElementById('progressText').textContent = Math.round(progress) + '%';
+}
+
+function showMessage(title, message, type = 'neutral') {
+    document.getElementById('popupTitle').textContent = title;
+    document.getElementById('popupMessage').textContent = message;
+    
+    const popup = document.getElementById('messagePopup');
+    popup.className = 'message-popup show';
+    
+    // Add color coding based on message type
+    if (type === 'positive') {
+        popup.classList.add('positive');
+    } else if (type === 'negative') {
+        popup.classList.add('negative');
+    }
+    
+    document.getElementById('overlay').classList.add('show');
+}
+
+function closePopup() {
+    const popup = document.getElementById('messagePopup');
+    popup.classList.remove('show', 'positive', 'negative');
+    document.getElementById('overlay').classList.remove('show');
+}
+
+function playSound(type) {
+    // Create audio context for sound effects
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        // Different frequencies for different events
+        switch(type) {
+            case 'snake':
+                oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 0.5);
+                break;
+            case 'ladder':
+                oscillator.frequency.setValueAtTime(300, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 0.3);
+                break;
+            case 'awareness':
+            case 'support':
+                oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
+                break;
+        }
+        
+        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.5);
+    } catch (e) {
+        console.log("Audio not supported:", e);
+    }
+}
+
+function rollDice() {
+    if (!gameStarted) return;
+    
+    const dice = document.getElementById('dice');
+    const rollBtn = document.getElementById('rollBtn');
+    
+    rollBtn.disabled = true;
+    dice.classList.add('rolling');
+    
+    let rollCount = 0;
+    const rollInterval = setInterval(() => {
+        const randomValue = Math.floor(Math.random() * 6) + 1;
+        dice.textContent = randomValue;
+        rollCount++;
+        
+        if (rollCount > 8) {
+            clearInterval(rollInterval);
+            const finalRoll = Math.floor(Math.random() * 6) + 1;
+            dice.textContent = finalRoll;
+            dice.classList.remove('rolling');
+            
+            // Update debug info
+            updateDebugInfo(finalRoll, players[currentPlayer], players[currentPlayer].position, null, finalRoll);
+            
+            setTimeout(() => {
+                movePlayer(finalRoll);
+                rollBtn.disabled = false;
+            }, 500);
+        }
+    }, 100);
+}
+
+// CORRECTED: Fixed movement logic
+function movePlayer(steps) {
+    const player = players[currentPlayer];
+    const oldPosition = player.position;
+    
+    // CORRECTED: Calculate new position correctly
+    let newPosition = oldPosition + steps;
+    
+    // Can only win by exact count
+    if (newPosition > 100) {
+        showMessage('बहुत ज्यादा!', `${player.name} को ${100 - oldPosition} की जरूरत है, लेकिन ${steps} आया। फिर कोशिश करें!`, 'neutral');
+        nextPlayer(steps);
+        return;
+    }
+    
+    // Update player position
+    player.position = newPosition;
+    player.moves++;
+    gameStats.totalMoves++;
+    
+    // Update debug info
+    updateDebugInfo(steps, player, oldPosition, newPosition, steps);
+    
+    // Move token to new position
+    movePlayerToken(currentPlayer, newPosition);
+    updatePlayerInfo();
+    updateGameStatus();
+    updateProgressBar();
+    
+    // Check for win condition
+    if (player.position === 100) {
+        setTimeout(() => {
+            showMessage('बधाई हो! 🎉', `${player.name} ने खेल जीत लिया! नशा मुक्त जीवन की ओर यह एक बड़ा कदम है।`, 'positive');
+            gameStarted = false;
+            showGameSummary(player);
+        }, 1000);
+        return;
+    }
+    
+    // Check for snake, ladder, or special cells after a delay
+    setTimeout(() => {
+        checkSpecialCells(player, steps);
+    }, 1000);
+}
+
+function checkSpecialCells(player, steps) {
+    const currentPosition = player.position;
+    
+    if (snakes[currentPosition]) {
+        playSound('snake');
+        gameStats.snakesHit++;
+        const oldPosition = currentPosition;
+        player.position = snakes[currentPosition];
+        
+        // Update debug info for snake
+        updateDebugInfo(steps, player, oldPosition, player.position, `SNAKE: ${oldPosition}→${player.position}`);
+        
+        movePlayerToken(currentPlayer, player.position);
+        const snakeLength = Math.abs(oldPosition - player.position);
+        showMessage('साँप! 🐍', `ओह नहीं! ${player.name} साँप के मुँह में फँस गए और ${oldPosition} से ${player.position} पर आ गए। ${snakeLength} खानों का नुकसान! नशा भी ऐसे ही आपको नीचे ले जाता है।`, 'negative');
+        updatePlayerInfo();
+        updateProgressBar();
+    } else if (ladders[currentPosition]) {
+        playSound('ladder');
+        gameStats.laddersUsed++;
+        const oldPosition = currentPosition;
+        player.position = ladders[currentPosition];
+        
+        // Update debug info for ladder
+        updateDebugInfo(steps, player, oldPosition, player.position, `LADDER: ${oldPosition}→${player.position}`);
+        
+        movePlayerToken(currentPlayer, player.position);
+        const ladderLength = Math.abs(player.position - oldPosition);
+        showMessage('सीढ़ी! 🪜', `वाह! ${player.name} ने सीढ़ी पकड़ ली और ${oldPosition} से ${player.position} पर चढ़ गए। ${ladderLength} खानों का फायदा! नशा मुक्ति के रास्ते पर यह एक अच्छा कदम है।`, 'positive');
+        updatePlayerInfo();
+        updateProgressBar();
+        
+        // Check for win after ladder
+        if (player.position === 100) {
+            setTimeout(() => {
+                showMessage('बधाई हो! 🎉', `${player.name} ने सीढ़ी के साथ खेल जीत लिया! नशा मुक्त जीवन की ओर यह एक बड़ा कदम है।`, 'positive');
+                gameStarted = false;
+                showGameSummary(player);
+            }, 1000);
+            return;
+        }
+    } else if (awarenessMessages[currentPosition]) {
+        playSound('awareness');
+        gameStats.awarenessMessages++;
+        showMessage('जागरूकता संदेश 💡', awarenessMessages[currentPosition], 'positive');
+    } else if (supportMessages[currentPosition]) {
+        playSound('support');
+        gameStats.supportMessages++;
+        showMessage('सहायता संसाधन 🤝', supportMessages[currentPosition], 'positive');
+    }
+    
+    nextPlayer(steps);
+}
+
+function nextPlayer(steps) {
+    // Move to next player if not a 6
+    if (steps !== 6) {
+        currentPlayer = (currentPlayer + 1) % players.length;
+        updateGameStatus();
+        updatePlayerInfo();
+        
+        // Update debug info for next player
+        updateDebugInfo('-', players[currentPlayer], players[currentPlayer].position, '-', '-');
+    } else {
+        showMessage('फिर से चलें! 🎲', `${players[currentPlayer].name} को 6 आया है! उन्हें एक और मौका मिलता है।`, 'positive');
+    }
+}
+
+function updateGameStatus() {
+    const statusElement = document.getElementById('gameStatus');
+    const current = players[currentPlayer];
+    statusElement.textContent = `${current.name} की बारी है (वर्तमान स्थिति: ${current.position})`;
+}
+
+function showGameSummary(winner) {
+    const gameTime = Math.round((Date.now() - gameStats.startTime) / 1000 / 60); // in minutes
+    
+    const summaryHTML = `
+        <div class="game-summary">
+            <h3>🏆 खेल समाप्त - विजेता: ${winner.name}</h3>
+            <div class="summary-stats">
+                <div class="stat-item">
+                    <div class="stat-value">${gameTime}</div>
+                    <div class="stat-label">मिनट</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${gameStats.totalMoves}</div>
+                    <div class="stat-label">कुल चालें</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${gameStats.snakesHit}</div>
+                    <div class="stat-label">साँप मिले</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${gameStats.laddersUsed}</div>
+                    <div class="stat-label">सीढ़ियाँ मिलीं</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${gameStats.awarenessMessages}</div>
+                    <div class="stat-label">जागरूकता संदेश</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${gameStats.supportMessages}</div>
+                    <div class="stat-label">सहायता संसाधन</div>
+                </div>
+            </div>
+            <p style="text-align: center; color: #2c3e50; margin-top: 15px; font-style: italic;">
+                "${winner.name}" ने ${winner.moves} चालों में जीत हासिल की! 
+                नशा मुक्ति की यात्रा में यह एक प्रेरणादायक उदाहरण है।
+            </p>
+        </div>
+    `;
+    
+    document.getElementById('gameArea').insertAdjacentHTML('beforeend', summaryHTML);
+}
+
+// Initialize click handlers for dice
+document.addEventListener('DOMContentLoaded', function() {
+    const diceElement = document.getElementById('dice');
+    const rollButton = document.getElementById('rollBtn');
+    
+    if (diceElement) {
+        diceElement.addEventListener('click', rollDice);
+    }
+    
+    if (rollButton) {
+        rollButton.addEventListener('click', rollDice);
+    }
+    
+    // Add keyboard support for rolling dice (spacebar)
+    document.addEventListener('keydown', function(event) {
+        if (event.code === 'Space' && gameStarted && !document.getElementById('rollBtn').disabled) {
+            event.preventDefault();
+            rollDice();
+        }
+    });
+    
+    // Add double-click to toggle debug mode
+    document.addEventListener('dblclick', function(event) {
+        if (event.ctrlKey) {
+            const debugInfo = document.getElementById('debugInfo');
+            if (debugInfo.classList.contains('show')) {
+                debugInfo.classList.remove('show');
+            } else {
+                debugInfo.classList.add('show');
+            }
+        }
+    });
+});
+    </script>
+</body>
+</html>

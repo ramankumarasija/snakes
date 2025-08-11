@@ -149,7 +149,7 @@
             font-weight: bold;
             font-size: 12px;
             color: #333;
-            overflow: hidden;
+            overflow: visible;
             cursor: pointer;
             transition: all 0.3s ease;
         }
@@ -178,69 +178,210 @@
             color: #B8860B;
             font-weight: bold;
         }
-      .snake {
-    position: absolute;
-    z-index: 5;
-    pointer-events: none;
-}
-.snake-image {
-    object-fit: cover;
-    image-rendering: crisp-edges;
-    -webkit-image-rendering: crisp-edges;
-    -ms-image-rendering: crisp-edges;
-    pointer-events: none;
-    transform-origin: 0 50%;
-}
-snake-body {
+        /* Enhanced Snake Styling with Dynamic Sizing */
+        .snake {
             position: absolute;
-            background: linear-gradient(0deg, #cc3333, #ff6666);
-            border-radius: 15px;
-            border: 2px solid #990000;
+            z-index: 15;
+            pointer-events: all;
+            cursor: pointer;
         }
-        .snake-head {
+        .snake-image {
             position: absolute;
-            width: 20px;
-            height: 20px;
-            background: radial-gradient(circle, #ff4444, #cc0000);
-            border-radius: 50%;
-            border: 2px solid #990000;
+            object-fit: contain;
+            image-rendering: crisp-edges;
+            -webkit-image-rendering: crisp-edges;
+            -ms-image-rendering: crisp-edges;
+            pointer-events: all;
+            transform-origin: center center;
+            border-radius: 8px;
+            opacity: 0.9;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+            transition: all 0.3s ease;
+            cursor: pointer;
+            animation: snakeBreathing 3s ease-in-out infinite;
         }
-        .snake-head::before {
-            content: '👁️';
-            position: absolute;
-            top: -5px;
-            left: 2px;
-            font-size: 8px;
+        /* Breathing Animation */
+        @keyframes snakeBreathing {
+            0%, 100% { 
+                transform: scale(1);
+                filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+            }
+            50% { 
+                transform: scale(1.05);
+                filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+            }
         }
+        /* Hover Effects */
+        .snake-image:hover {
+            opacity: 1;
+            filter: drop-shadow(0 6px 12px rgba(255,0,0,0.7)) brightness(1.2);
+            transform: scale(1.1) !important;
+            animation: snakeHover 0.5s ease-in-out infinite alternate;
+        }
+        @keyframes snakeHover {
+            0% { filter: drop-shadow(0 6px 12px rgba(255,0,0,0.7)) brightness(1.2); }
+            100% { filter: drop-shadow(0 8px 16px rgba(255,0,0,0.9)) brightness(1.3); }
+        }
+        /* Click Animation */
+        .snake-image.clicked {
+            animation: snakeClick 1s ease-in-out;
+        }
+        @keyframes snakeClick {
+            0% { transform: scale(1); }
+            25% { transform: scale(2); filter: brightness(1.5) saturate(1.5); }
+            50% { transform: scale(2.2); filter: brightness(1.8) saturate(2); }
+            75% { transform: scale(1.8); filter: brightness(1.3) saturate(1.3); }
+            100% { transform: scale(1); filter: brightness(1) saturate(1); }
+        }
+        /* Flickering Effect */
+        @keyframes snakeFlicker {
+            0%, 100% { opacity: 0.9; }
+            10% { opacity: 0.3; }
+            20% { opacity: 1; }
+            30% { opacity: 0.2; }
+            40% { opacity: 1; }
+            50% { opacity: 0.4; }
+            60% { opacity: 1; }
+            70% { opacity: 0.3; }
+            80% { opacity: 1; }
+            90% { opacity: 0.2; }
+        }
+        .snake-image.flickering {
+            animation: snakeFlicker 0.5s ease-in-out;
+        }
+        /* High threat snake effects */
+        .snake-image.extreme-threat {
+            animation: snakeBreathing 2s ease-in-out infinite, snakePulse 3s ease-in-out infinite;
+            filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.7));
+        }
+        @keyframes snakePulse {
+            0%, 100% { filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.7)); }
+            50% { filter: drop-shadow(0 0 20px rgba(255, 0, 0, 1)); }
+        }
+        
+        /* IMPROVED LADDER STYLING */
         .ladder {
             position: absolute;
-            z-index: 4;
-            pointer-events: none;
+            z-index: 12;
+            pointer-events: all;
+            cursor: pointer;
         }
+        
+        /* 3D Ladder Rails with Gradient and Shadow */
         .ladder-rail {
-            background: linear-gradient(to right, #DAA520, #FFD700);
+            background: linear-gradient(135deg, 
+                #FFD700 0%, 
+                #FFA500 20%, 
+                #DAA520 40%, 
+                #B8860B 60%, 
+                #DAA520 80%, 
+                #FFD700 100%);
             border: 2px solid #B8860B;
             position: absolute;
+            border-radius: 3px;
+            box-shadow: 
+                inset 2px 2px 4px rgba(255, 255, 255, 0.6),
+                inset -2px -2px 4px rgba(0, 0, 0, 0.3),
+                0 4px 8px rgba(0, 0, 0, 0.4);
         }
+        
+        /* 3D Ladder Rungs with Enhanced Styling */
         .ladder-rung {
-            background: linear-gradient(to bottom, #DAA520, #B8860B);
+            background: linear-gradient(to bottom, 
+                #FFD700 0%, 
+                #DAA520 30%, 
+                #B8860B 50%, 
+                #8B7355 70%, 
+                #DAA520 90%, 
+                #FFD700 100%);
             border: 1px solid #996600;
             position: absolute;
+            border-radius: 2px;
+            box-shadow: 
+                inset 1px 1px 3px rgba(255, 255, 255, 0.7),
+                inset -1px -1px 3px rgba(0, 0, 0, 0.4),
+                0 2px 4px rgba(0, 0, 0, 0.3);
         }
+        
+        /* Ladder Hover Effects */
+        .ladder:hover .ladder-rail {
+            background: linear-gradient(135deg, 
+                #FFFF00 0%, 
+                #FFD700 20%, 
+                #FFA500 40%, 
+                #DAA520 60%, 
+                #FFA500 80%, 
+                #FFFF00 100%);
+            box-shadow: 
+                inset 2px 2px 4px rgba(255, 255, 255, 0.8),
+                inset -2px -2px 4px rgba(0, 0, 0, 0.2),
+                0 6px 12px rgba(255, 215, 0, 0.6);
+            transform: scale(1.02);
+        }
+        
+        .ladder:hover .ladder-rung {
+            background: linear-gradient(to bottom, 
+                #FFFF00 0%, 
+                #FFD700 30%, 
+                #DAA520 50%, 
+                #B8860B 70%, 
+                #FFD700 90%, 
+                #FFFF00 100%);
+            box-shadow: 
+                inset 1px 1px 3px rgba(255, 255, 255, 0.9),
+                inset -1px -1px 3px rgba(0, 0, 0, 0.3),
+                0 3px 6px rgba(255, 215, 0, 0.5);
+        }
+        
+        /* Ladder Glow Animation */
+        @keyframes ladderGlow {
+            0%, 100% {
+                filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.4));
+            }
+            50% {
+                filter: drop-shadow(0 0 16px rgba(255, 215, 0, 0.8));
+            }
+        }
+        
+        .ladder {
+            animation: ladderGlow 4s ease-in-out infinite;
+        }
+        
         .game-piece {
             position: absolute;
             width: 20px;
             height: 25px;
             border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-            z-index: 10;
+            z-index: 25;
             border: 2px solid rgba(255,255,255,0.5);
             box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-            transition: all 0.5s ease;
+            transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transform-origin: center center;
         }
         .piece-red { background: linear-gradient(135deg, #e74c3c, #c0392b); }
         .piece-blue { background: linear-gradient(135deg, #3498db, #2980b9); }
         .piece-green { background: linear-gradient(135deg, #2ecc71, #27ae60); }
         .piece-yellow { background: linear-gradient(135deg, #f39c12, #d68910); }
+        
+        /* Token Animation Classes */
+        .game-piece.moving {
+            transform: scale(1.3) rotate(360deg);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            z-index: 30;
+        }
+        
+        .game-piece.bouncing {
+            animation: tokenBounce 0.6s ease-in-out;
+        }
+        
+        @keyframes tokenBounce {
+            0%, 100% { transform: scale(1) translateY(0); }
+            20% { transform: scale(1.1) translateY(-8px); }
+            40% { transform: scale(1.05) translateY(-4px); }
+            60% { transform: scale(1.1) translateY(-8px); }
+            80% { transform: scale(1.05) translateY(-2px); }
+        }
+        
         .controls {
             display: flex;
             justify-content: center;
@@ -458,25 +599,39 @@ snake-body {
         .message-popup.negative h3 {
             color: #e74c3c;
         }
-        
-        /* Snake Animations */
-        @keyframes snakePulse {
-            0%, 100% { filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.7)); }
-            50% { filter: drop-shadow(0 0 20px rgba(255, 0, 0, 1)); }
+        .game-summary {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            border-left: 4px solid #3498db;
         }
-
-        @keyframes snakeWarning {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+        .game-summary h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            text-align: center;
         }
-
-        .strategic-snake {
-            transition: all 0.3s ease;
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
         }
-
-        .strategic-snake:hover {
-            filter: brightness(1.2) !important;
-            transform: scale(1.05) !important;
+        .stat-item {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .stat-value {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #3498db;
+        }
+        .stat-label {
+            font-size: 0.9em;
+            color: #7f8c8d;
         }
     </style>
 </head>
@@ -516,8 +671,8 @@ snake-body {
                 </div>
             </div>
             <div class="controls">
-                <div class="dice" id="dice">🎲</div>
-                <button class="roll-btn" id="rollBtn">पासा फेंकें</button>
+                <div class="dice" id="dice" onclick="rollDice()">🎲</div>
+                <button class="roll-btn" id="rollBtn" onclick="rollDice()">पासा फेंकें</button>
                 <button class="restart-btn" onclick="restartGame()">नया खेल</button>
             </div>
             <div class="legend">
@@ -549,7 +704,7 @@ snake-body {
     </div>
     
     <script>
-        // Game data from your original code
+        // Game data
         const awarenessMessages = {
             2: "नशा छोड़ो, ज़िंदगी से नाता जोड़ो।",
             9: "जो नशे से लड़े, वो सच्चा खिलाड़ी है।",
@@ -584,148 +739,122 @@ snake-body {
             4: 14, 11: 32, 23: 44, 38: 59, 49: 67, 65: 85, 72: 91, 81: 98
         };
         
-          // Snake Image Mapping with working URLs
-     /*   const snakeImageMap = {
-  snake1: './snake/SVG/Snake-01.svg',
-  snake2: './snake/SVG/Snake-02.svg',
-  snake3: './snake/SVG/Snake-03.svg',
-  snake4: './snake/SVG/Snake-04.svg',
-  snake5: './snake/SVG/Snake-05.svg',
-  snake6: './snake/SVG/Snake-06.svg',
-  snake7: './snake/SVG/Snake-07.svg',
-  snake8: './snake/SVG/Snake-08.svg',
-  snake9: './snake/SVG/Snake-09.svg'
-}; */  
-  const snakeImageMap = {
-         snake1: "https://raw.githubusercontent.com/ramankumarasija/snakes/93d31a792a03b7ce9735b4b2208abcdc2dd9655b/3Dsnakes/noBGpngCompressed/3dsnpng9.png",
-          snake2: "https://raw.githubusercontent.com/ramankumarasija/snakes/93d31a792a03b7ce9735b4b2208abcdc2dd9655b/3Dsnakes/noBGpngCompressed/3dsnpng2.png",
-           snake3: "https://raw.githubusercontent.com/ramankumarasija/snakes/93d31a792a03b7ce9735b4b2208abcdc2dd9655b/3Dsnakes/noBGpngCompressed/3dsnpng4.png",
-          snake4: "https://raw.githubusercontent.com/ramankumarasija/snakes/93d31a792a03b7ce9735b4b2208abcdc2dd9655b/3Dsnakes/noBGpngCompressed/3dsnpng1.png",
-          snake5: "https://raw.githubusercontent.com/ramankumarasija/snakes/93d31a792a03b7ce9735b4b2208abcdc2dd9655b/3Dsnakes/noBGpngCompressed/3dsnpng3.png",
-           snake6: "https://raw.githubusercontent.com/ramankumarasija/snakes/93d31a792a03b7ce9735b4b2208abcdc2dd9655b/3Dsnakes/noBGpngCompressed/3dsnpng5.png",
-           snake7: "https://raw.githubusercontent.com/ramankumarasija/snakes/93d31a792a03b7ce9735b4b2208abcdc2dd9655b/3Dsnakes/noBGpngCompressed/3dsnpng7.png",
+        const snakeImageMap = {
+            snake1: "https://raw.githubusercontent.com/ramankumarasija/snakes/93d31a792a03b7ce9735b4b2208abcdc2dd9655b/3Dsnakes/noBGpngCompressed/3dsnpng9.png",
+            snake2: "https://raw.githubusercontent.com/ramankumarasija/snakes/93d31a792a03b7ce9735b4b2208abcdc2dd9655b/3Dsnakes/noBGpngCompressed/3dsnpng2.png",
+            snake3: "https://raw.githubusercontent.com/ramankumarasija/snakes/93d31a792a03b7ce9735b4b2208abcdc2dd9655b/3Dsnakes/noBGpngCompressed/3dsnpng4.png",
+            snake4: "https://raw.githubusercontent.com/ramankumarasija/snakes/93d31a792a03b7ce9735b4b2208abcdc2dd9655b/3Dsnakes/noBGpngCompressed/3dsnpng1.png",
+            snake5: "https://raw.githubusercontent.com/ramankumarasija/snakes/93d31a792a03b7ce9735b4b2208abcdc2dd9655b/3Dsnakes/noBGpngCompressed/3dsnpng3.png",
+            snake6: "https://raw.githubusercontent.com/ramankumarasija/snakes/93d31a792a03b7ce9735b4b2208abcdc2dd9655b/3Dsnakes/noBGpngCompressed/3dsnpng5.png",
+            snake7: "https://raw.githubusercontent.com/ramankumarasija/snakes/93d31a792a03b7ce9735b4b2208abcdc2dd9655b/3Dsnakes/noBGpngCompressed/3dsnpng7.png",
             snake8: "https://raw.githubusercontent.com/ramankumarasija/snakes/93d31a792a03b7ce9735b4b2208abcdc2dd9655b/3Dsnakes/noBGpngCompressed/3dsnpng10.png",
             snake9: "https://raw.githubusercontent.com/ramankumarasija/snakes/93d31a792a03b7ce9735b4b2208abcdc2dd9655b/3Dsnakes/noBGpngCompressed/3dsnpng8.png"
-        }; 
-
-        // STRATEGIC SNAKE ASSIGNMENT based on threat level and visual impact
-        const strategicSnakeAssignment = {
-            // EXTREME THREATS (90-99) - Most dangerous and visually striking
-            99: {
-                image: snakeImageMap.snake7,
-                info: {
-                    title: 'राजा कोबरा - किंग स्नेक 👑🐍',
-                    message: 'सबसे खतरनाक साँप! नशे की लत का राजा - सबसे ज्यादा नुकसान पहुँचाता है।'
-                },
-                height: 45,
-                zIndex: 10
-            },
-            
-            95: {
-                image: snakeImageMap.snake4,
-                info: {
-                    title: 'नीला कोबरा - ब्लू डेथ 💙🐍',
-                    message: 'फन फैलाकर हमला करता है। नशा भी ऐसे ही अचानक जीवन पर हमला करता है।'
-                },
-                height: 42,
-                zIndex: 9
-            },
-            
-            // HIGH THREATS (70-89) - Dangerous and aggressive
-            87: {
-                image: snakeImageMap.snake2,
-                info: {
-                    title: 'हरा वाइपर - ग्रीन वेनम 🐍☠️',
-                    message: 'मुंह खोलकर डराता है। नशे का जहर भी ऐसे ही तुरंत असर करता है।'
-                },
-                height: 38,
-                zIndex: 8
-            },
-            
-            82: {
-                image: snakeImageMap.snake6,
-                info: {
-                    title: 'लाल धारीदार साँप - रेड अलर्ट 🔴🐍',
-                    message: 'चेतावनी के रंग में। नशा भी खतरे की घंटी है।'
-                },
-                height: 36,
-                zIndex: 7
-            },
-            
-            74: {
-                image: snakeImageMap.snake1,
-                info: {
-                    title: 'धारीदार अजगर - स्ट्राइप्ड पायथन 🐍',
-                    message: 'धीरे-धीरे जकड़ता है। नशे की लत भी ऐसे ही धीरे-धीरे बांधती है।'
-                },
-                height: 34,
-                zIndex: 6
-            },
-            
-            // MEDIUM THREATS (40-69) - Moderately dangerous
-            68: {
-                image: snakeImageMap.snake5,
-                info: {
-                    title: 'नीला पैटर्न स्नेक - ब्लू प्रिंट 🔷🐍',
-                    message: 'खूबसूरत पैटर्न लेकिन खतरनाक। नशा भी पहले आकर्षक लगता है।'
-                },
-                height: 32,
-                zIndex: 5
-            },
-            
-            55: {
-                image: snakeImageMap.snake3,
-                info: {
-                    title: 'भूरा अजगर - ब्राउन पायथन 🤎🐍',
-                    message: 'शांत दिखता है लेकिन शक्तिशाली। नशे की छुपी हुई ताकत।'
-                },
-                height: 30,
-                zIndex: 4
-            },
-            
-            42: {
-                image: snakeImageMap.snake9,
-                info: {
-                    title: 'मिट्टी का साँप - अर्थ स्नेक 🌍🐍',
-                    message: 'जमीन से जुड़ा हुआ। नशा भी जड़ों तक पहुंच जाता है।'
-                },
-                height: 28,
-                zIndex: 3
-            },
-            
-            // LOW THREATS (Below 40) - Smaller but still dangerous
-            34: {
-                image: snakeImageMap.snake8,
-                info: {
-                    title: 'हरा पेड़ी साँप - ट्री स्नेक 🌳🐍',
-                    message: 'छोटा लेकिन चुस्त। नशे की शुरुआत भी ऐसी ही होती है।'
-                },
-                height: 25,
-                zIndex: 2
-            },
-            
-            29: {
-                image: snakeImageMap.snake5,
-                info: {
-                    title: 'छोटा नीला साँप - स्माल ब्लू 🐍',
-                    message: 'आकार में छोटा, नुकसान में बड़ा।'
-                },
-                height: 22,
-                zIndex: 2
-            },
-            
-            17: {
-                image: snakeImageMap.snake8,
-                info: {
-                    title: 'नन्हा साँप - टाइनी थ्रेट 🐍',
-                    message: 'सबसे छोटा लेकिन फिर भी खतरनाक। हर नशा नुकसानदायक है।'
-                },
-                height: 20,
-                zIndex: 1
-            }
         };
-
-        // FALLBACK SYSTEM for random assignment if position not predefined
+        
+        // Function to calculate snake length and determine width dynamically
+        function calculateSnakeLength(startPos, endPos) {
+            const distance = Math.abs(startPos - endPos);
+            return distance;
+        }
+        
+        function getSnakeWidthByLength(length) {
+            if (length <= 10) return 20 + length;
+            if (length <= 20) return 30 + (length - 10);
+            if (length <= 30) return 40 + (length - 20);
+            return Math.min(60, 50 + (length - 30));
+        }
+        
+        // Strategic snake assignment with dynamic sizing
+        function getStrategicSnakeConfig(startPos, endPos) {
+            const length = calculateSnakeLength(startPos, endPos);
+            const width = getSnakeWidthByLength(length);
+            
+            const strategicSnakeAssignment = {
+                99: {
+                    image: snakeImageMap.snake7,
+                    info: {
+                        title: 'राजा कोबरा - किंग स्नेक 👑🐍',
+                        message: `सबसे खतरनाक साँप! लंबाई ${length} खानों की। नशे की लत का राजा - सबसे ज्यादा नुकसान पहुँचाता है।`
+                    },
+                    width: width,
+                    zIndex: 15
+                },
+                87: {
+                    image: snakeImageMap.snake2,
+                    info: {
+                        title: 'हरा वाइपर - ग्रीन वेनम 🐍☠️',
+                        message: `मुंह खोलकर डराता है। लंबाई ${length} खानों की। नशे का जहर भी ऐसे ही तुरंत असर करता है।`
+                    },
+                    width: width,
+                    zIndex: 12
+                },
+                74: {
+                    image: snakeImageMap.snake1,
+                    info: {
+                        title: 'धारीदार अजगर - स्ट्राइप्ड पायथन 🐍',
+                        message: `धीरे-धीरे जकड़ता है। लंबाई ${length} खानों की। नशे की लत भी ऐसे ही धीरे-धीरे बांधती है।`
+                    },
+                    width: width,
+                    zIndex: 10
+                },
+                68: {
+                    image: snakeImageMap.snake5,
+                    info: {
+                        title: 'नीला पैटर्न स्नेक - ब्लू प्रिंट 🔷🐍',
+                        message: `खूबसूरत पैटर्न लेकिन खतरनाक। लंबाई ${length} खानों की। नशा भी पहले आकर्षक लगता है।`
+                    },
+                    width: width,
+                    zIndex: 8
+                },
+                55: {
+                    image: snakeImageMap.snake3,
+                    info: {
+                        title: 'भूरा अजगर - ब्राउन पायथन 🤎🐍',
+                        message: `शांत दिखता है लेकिन शक्तिशाली। लंबाई ${length} खानों की। नशे की छुपी हुई ताकत।`
+                    },
+                    width: width,
+                    zIndex: 6
+                },
+                42: {
+                    image: snakeImageMap.snake9,
+                    info: {
+                        title: 'मिट्टी का साँप - अर्थ स्नेक 🌍🐍',
+                        message: `जमीन से जुड़ा हुआ। लंबाई ${length} खानों की। नशा भी जड़ों तक पहुंच जाता है।`
+                    },
+                    width: width,
+                    zIndex: 5
+                },
+                34: {
+                    image: snakeImageMap.snake8,
+                    info: {
+                        title: 'हरा पेड़ी साँप - ट्री स्नेक 🌳🐍',
+                        message: `छोटा लेकिन चुस्त। लंबाई ${length} खानों की। नशे की शुरुआत भी ऐसी ही होती है।`
+                    },
+                    width: width,
+                    zIndex: 4
+                },
+                29: {
+                    image: snakeImageMap.snake5,
+                    info: {
+                        title: 'छोटा नीला साँप - स्माल ब्लू 🐍',
+                        message: `आकार में छोटा, नुकसान में बड़ा। लंबाई ${length} खानों की।`
+                    },
+                    width: width,
+                    zIndex: 3
+                },
+                17: {
+                    image: snakeImageMap.snake8,
+                    info: {
+                        title: 'नन्हा साँप - टाइनी थ्रेट 🐍',
+                        message: `सबसे छोटा लेकिन फिर भी खतरनाक। लंबाई ${length} खानों की। हर नशा नुकसानदायक है।`
+                    },
+                    width: width,
+                    zIndex: 2
+                }
+            };
+            return strategicSnakeAssignment[startPos];
+        }
+        
         const fallbackSnakesByDifficulty = {
             extreme: [snakeImageMap.snake7, snakeImageMap.snake4, snakeImageMap.snake2],
             hard: [snakeImageMap.snake1, snakeImageMap.snake6, snakeImageMap.snake5],
@@ -746,11 +875,57 @@ snake-body {
             startTime: null
         };
         
+        // Audio context for snake hiss sound
+        let audioContext;
+        function initAudio() {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            } catch (e) {
+                console.log("Audio not supported:", e);
+            }
+        }
+        
+        function playSnakeHiss() {
+            if (!audioContext) {
+                initAudio();
+            }
+            if (audioContext) {
+                try {
+                    const noiseBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.8, audioContext.sampleRate);
+                    const noiseData = noiseBuffer.getChannelData(0);
+                    
+                    for (let i = 0; i < noiseData.length; i++) {
+                        noiseData[i] = Math.random() * 2 - 1;
+                    }
+                    
+                    const noiseSource = audioContext.createBufferSource();
+                    noiseSource.buffer = noiseBuffer;
+                    
+                    const filter = audioContext.createBiquadFilter();
+                    filter.type = 'highpass';
+                    filter.frequency.value = 2000;
+                    
+                    const gainNode = audioContext.createGain();
+                    
+                    noiseSource.connect(filter);
+                    filter.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.8);
+                    
+                    noiseSource.start(audioContext.currentTime);
+                    noiseSource.stop(audioContext.currentTime + 0.8);
+                } catch (e) {
+                    console.log("Error playing hiss sound:", e);
+                }
+            }
+        }
+        
         function createBoard() {
             const board = document.getElementById('gameBoard');
             board.innerHTML = '';
             
-            // Create cells (100 to 1)
             for (let row = 0; row < 10; row++) {
                 for (let col = 0; col < 10; col++) {
                     const cellNumber = getCellNumber(row, col);
@@ -759,7 +934,6 @@ snake-body {
                     cell.id = `cell-${cellNumber}`;
                     cell.textContent = cellNumber;
                     
-                    // Apply special cell styling
                     if (cellNumber === 1) {
                         cell.className += ' start';
                     } else if (cellNumber === 100) {
@@ -770,14 +944,12 @@ snake-body {
                         cell.className += ' support';
                     }
                     
-                    // Add click event for cell information
                     cell.addEventListener('click', () => showCellInfo(cellNumber));
                     
                     board.appendChild(cell);
                 }
             }
             
-            // Add snakes and ladders
             addSnakesAndLadders();
         }
         
@@ -790,39 +962,122 @@ snake-body {
             }
         }
         
+        // FIXED: Improved cell position calculation
         function getCellPosition(cellNumber) {
-            const row = Math.floor((100 - cellNumber) / 10);
-            let col = (100 - cellNumber) % 10;
-            const isLeftToRight = row % 2 === 0;
+            // Convert cell number to grid position
+            const rowFromBottom = Math.floor((cellNumber - 1) / 10);
+            const row = 9 - rowFromBottom; // Flip to get actual row
             
-            if (!isLeftToRight) {
-                col = 9 - col;
+            // Determine column based on row direction
+            let col;
+            const isLeftToRight = rowFromBottom % 2 === 0;
+            
+            if (isLeftToRight) {
+                col = (cellNumber - 1) % 10;
+            } else {
+                col = 9 - ((cellNumber - 1) % 10);
             }
             
             return { row, col };
         }
         
-        // ENHANCED createSnake function with strategic assignment
-       /* function createSnakeWithStrategicAssignment(start, end, board) {
-            const startPos = getCellPosition(start);
-            const endPos = getCellPosition(end);
+        function getPixelPosition(row, col) {
+            const boardPadding = 10;
+            const cellSize = 50;
+            const gap = 2;
+            const step = cellSize + gap;
+            
+            const x = boardPadding + col * step + cellSize/2;
+            const y = boardPadding + row * step + cellSize/2;
+            
+            return { x, y };
+        }
+        
+        function getCellCenter(cellNumber) {
+            const { row, col } = getCellPosition(cellNumber);
+            return getPixelPosition(row, col);
+        }
+        
+        function createPlayerTokens() {
+            document.querySelectorAll('.game-piece').forEach(piece => piece.remove());
+            
+            const colors = ['red', 'blue', 'green', 'yellow'];
+            
+            players.forEach((player, index) => {
+                const piece = document.createElement('div');
+                piece.className = `game-piece piece-${colors[index]}`;
+                piece.id = `piece-${index}`;
+                
+                // FIXED: Better token positioning with proper offsets
+                const position = player.position;
+                const playersOnCell = players.filter(p => p.position === position);
+                const indexOnCell = playersOnCell.findIndex(p => p.id === player.id);
+                
+                const center = getCellCenter(position);
+                const tokenWidth = 20;
+                const tokenHeight = 25;
+                
+                // Improved offset calculation for multiple tokens
+                const offsetX = (indexOnCell % 2) * 15 - 7.5;
+                const offsetY = Math.floor(indexOnCell / 2) * 15 - 7.5;
+                
+                const tokenX = center.x - tokenWidth/2 + offsetX;
+                const tokenY = center.y - tokenHeight/2 + offsetY;
+                
+                piece.style.left = tokenX + 'px';
+                piece.style.top = tokenY + 'px';
+                
+                document.getElementById('gameBoard').appendChild(piece);
+            });
+        }
+        
+        // IMPROVED: Enhanced token movement with better animations
+        function movePlayerToken(playerIndex, targetCell) {
+            const piece = document.getElementById(`piece-${playerIndex}`);
+            if (!piece) return;
+            
+            // Add moving class for animation
+            piece.classList.add('moving');
+            
+            const playersOnCell = players.filter(p => p.position === targetCell);
+            const indexOnCell = playersOnCell.findIndex(p => p.id === players[playerIndex].id);
+            
+            const center = getCellCenter(targetCell);
+            const tokenWidth = 20;
+            const tokenHeight = 25;
+            
+            // Improved offset calculation
+            const offsetX = (indexOnCell % 2) * 15 - 7.5;
+            const offsetY = Math.floor(indexOnCell / 2) * 15 - 7.5;
+            
+            const tokenX = center.x - tokenWidth/2 + offsetX;
+            const tokenY = center.y - tokenHeight/2 + offsetY;
+            
+            // Enhanced animation with better timing
+            piece.style.transition = 'all 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+            piece.style.left = tokenX + 'px';
+            piece.style.top = tokenY + 'px';
+            
+            // Add bounce effect after movement
+            setTimeout(() => {
+                piece.classList.remove('moving');
+                piece.classList.add('bouncing');
+                
+                setTimeout(() => {
+                    piece.classList.remove('bouncing');
+                }, 600);
+            }, 1200);
+        }
+        
+        // Enhanced createSnake function with proper positioning and dynamic sizing
+        function createSnakeWithEnhancedEffects(start, end, board) {
+            const startCenter = getCellCenter(start);
+            const length = calculateSnakeLength(start, end);
             
             const snake = document.createElement('div');
             snake.className = 'snake';
             
-            // Calculate snake position and size
-            const startX = startPos.col * 52 + 26;
-            const startY = startPos.row * 52 + 26;
-            const endX = endPos.col * 52 + 26;
-            const endY = endPos.row * 52 + 26;
-            
-            const length = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
-            const angle = Math.atan2(endY - startY, endX - startX) * (180 / Math.PI);
-            
-            // *** STRATEGIC SNAKE SELECTION ***
-            let snakeConfig = strategicSnakeAssignment[start];
-            
-            // If no predefined assignment, use difficulty-based fallback
+            let snakeConfig = getStrategicSnakeConfig(start, end);
             if (!snakeConfig) {
                 const difficulty = getSnakeDifficulty(start);
                 const availableSnakes = fallbackSnakesByDifficulty[difficulty];
@@ -830,42 +1085,50 @@ snake-body {
                 
                 snakeConfig = {
                     image: randomSnake,
-                    info: getGenericSnakeInfo(start),
-                    height: getSnakeHeight(start),
+                    info: getGenericSnakeInfo(start, length),
+                    width: getSnakeWidthByLength(length),
                     zIndex: Math.floor(start / 20) + 1
                 };
             }
             
-            // Create snake image element
             const snakeImage = document.createElement('img');
             snakeImage.src = snakeConfig.image;
-            snakeImage.className = 'snake-image strategic-snake';
-            snakeImage.style.width = length + 'px';
-            snakeImage.style.height = snakeConfig.height + 'px';
-            snakeImage.style.position = 'absolute';
-            snakeImage.style.left = startX + 'px';
-            snakeImage.style.top = startY + 'px';
-            snakeImage.style.transformOrigin = '0 50%';
-            snakeImage.style.transform = `rotate(${angle}deg)`;
-            snakeImage.style.zIndex = snakeConfig.zIndex;
-            snakeImage.style.pointerEvents = 'none';
-            snakeImage.style.objectFit = 'fill';
+            snakeImage.className = 'snake-image';
             
-            // Add visual effects for higher threat snakes
             if (start >= 90) {
-                snakeImage.style.filter = 'drop-shadow(0 0 10px rgba(255, 0, 0, 0.7))';
-                snakeImage.style.animation = 'snakePulse 2s infinite';
-            } else if (start >= 70) {
-                snakeImage.style.filter = 'drop-shadow(0 0 5px rgba(255, 100, 0, 0.5))';
+                snakeImage.classList.add('extreme-threat');
             }
             
-            // Error handling with intelligent fallback
+            snakeImage.style.width = snakeConfig.width + 'px';
+            snakeImage.style.height = snakeConfig.width + 'px';
+            snakeImage.style.position = 'absolute';
+            snakeImage.style.left = (startCenter.x - snakeConfig.width/2) + 'px';
+            snakeImage.style.top = (startCenter.y - snakeConfig.width/2) + 'px';
+            snakeImage.style.zIndex = snakeConfig.zIndex;
+            snakeImage.style.pointerEvents = 'all';
+            snakeImage.style.cursor = 'pointer';
+            
+            snakeImage.addEventListener('click', (e) => {
+                e.stopPropagation();
+                playSnakeHiss();
+                snakeImage.classList.add('clicked', 'flickering');
+                
+                setTimeout(() => {
+                    snakeImage.classList.remove('clicked');
+                }, 1000);
+                
+                setTimeout(() => {
+                    snakeImage.classList.remove('flickering');
+                }, 500);
+                
+                showMessage(snakeConfig.info.title, snakeConfig.info.message, 'negative');
+            });
+            
             snakeImage.onerror = function() {
-                console.warn(`Strategic snake ${snakeConfig.image} failed to load`);
+                console.warn(`Snake image ${snakeConfig.image} failed to load`);
                 const difficulty = getSnakeDifficulty(start);
                 const fallbackOptions = fallbackSnakesByDifficulty[difficulty];
                 
-                // Try next option in difficulty category
                 for (let option of fallbackOptions) {
                     if (option !== snakeConfig.image) {
                         this.src = option;
@@ -875,276 +1138,40 @@ snake-body {
             };
             
             snake.appendChild(snakeImage);
-            
-            // Add click event with strategic snake information
-            snake.addEventListener('click', () => {
-                showMessage(snakeConfig.info.title, snakeConfig.info.message, 'negative');
-                
-                // Add special effects for high-threat snakes
-                if (start >= 80) {
-                    snake.style.animation = 'snakeWarning 1s ease-in-out';
-                }
-            });
-            
             board.appendChild(snake);
-        } */
-// ENHANCED createSnakeWithStrategicAssignment - Optimized for SVG
-function createSnakeWithStrategicAssignment(start, end, board) {
-    const startPos = getCellPosition(start);
-    const endPos = getCellPosition(end);
-    
-    const snake = document.createElement('div');
-    snake.className = 'snake';
-    
-    // Calculate snake position and size
-    const startX = startPos.col * 52 + 26;
-    const startY = startPos.row * 52 + 26;
-    const endX = endPos.col * 52 + 26;
-    const endY = endPos.row * 52 + 26;
-    
-    const length = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
-    const angle = Math.atan2(endY - startY, endX - startX) * (180 / Math.PI);
-    
-    // *** STRATEGIC SNAKE SELECTION ***
-    let snakeConfig = strategicSnakeAssignment[start];
-    
-    // If no predefined assignment, use difficulty-based fallback
-    if (!snakeConfig) {
-        const difficulty = getSnakeDifficulty(start);
-        const availableSnakes = fallbackSnakesByDifficulty[difficulty];
-        const randomSnake = availableSnakes[Math.floor(Math.random() * availableSnakes.length)];
-        
-        snakeConfig = {
-            image: randomSnake,
-            info: getGenericSnakeInfo(start),
-            height: getSnakeHeight(start),
-            zIndex: Math.floor(start / 20) + 1
-        };
-    }
-    
-    // Create snake image element - OPTIMIZED FOR SVG
-    const snakeImage = document.createElement('img');
-    snakeImage.src = snakeConfig.image;
-    snakeImage.className = 'snake-image strategic-snake';
-    
-    // *** SVG-OPTIMIZED STYLING ***
-    snakeImage.style.width = length + 'px';
-    snakeImage.style.height = (snakeConfig.height + 15) + 'px'; // Extra height for SVG clarity
-    snakeImage.style.position = 'absolute';
-    snakeImage.style.left = startX + 'px';
-    snakeImage.style.top = (startY - 7) + 'px'; // Better centering for SVG
-    snakeImage.style.transformOrigin = '0 50%';
-    snakeImage.style.transform = `rotate(${angle}deg)`;
-    snakeImage.style.zIndex = snakeConfig.zIndex;
-    snakeImage.style.pointerEvents = 'none';
-    
-    // SVG-specific optimizations
-    snakeImage.style.objectFit = 'contain'; // Better for SVG preservation
-    snakeImage.style.imageRendering = 'crisp-edges'; // Sharp SVG rendering
-    snakeImage.style.WebkitImageRendering = 'crisp-edges';
-    snakeImage.style.msImageRendering = 'crisp-edges';
-    
-    // Add visual effects for higher threat snakes
-    if (start >= 90) {
-        snakeImage.style.filter = 'drop-shadow(0 0 15px rgba(255, 0, 0, 0.8)) brightness(1.1)';
-        snakeImage.style.animation = 'snakePulse 2s infinite';
-    } else if (start >= 70) {
-        snakeImage.style.filter = 'drop-shadow(0 0 8px rgba(255, 100, 0, 0.6)) brightness(1.05)';
-    } else if (start >= 50) {
-        snakeImage.style.filter = 'drop-shadow(0 0 5px rgba(255, 200, 0, 0.4))';
-    }
-    
-    // *** COMPREHENSIVE ERROR HANDLING WITH FORMAT FALLBACKS ***
-    snakeImage.onerror = function() {
-        console.warn(`SVG snake image ${snakeConfig.image} failed to load`);
-        
-        // Try all available formats in order of preference
-        const baseFileName = snakeConfig.image.split('/').pop().replace('.svg', '');
-        const alternatives = [
-            // Try different SVG naming patterns first
-            snakeConfig.image.replace('Snake-0', 'snake-0'),
-            snakeConfig.image.replace('Snake-0', 'Snake_0'),
-            snakeConfig.image.replace('./snake/SVG/', './snake/svg/'),
-            
-            // Fallback to PNG (high quality)
-            `./snake/PNG/${baseFileName}.png`,
-            `./snake/png/${baseFileName}.png`,
-            
-            // Fallback to JPG
-            `./snake/JPG/${baseFileName}.jpg`,
-            `./snake/jpg/${baseFileName}.jpg`,
-            
-            // Try PSD (though browsers won't load it, for completeness)
-            `./snake/PSD/${baseFileName}.psd`
-        ];
-        
-        let alternativeIndex = 0;
-        
-        const tryAlternative = () => {
-            if (alternativeIndex < alternatives.length) {
-                const nextSrc = alternatives[alternativeIndex];
-                console.log(`Trying alternative: ${nextSrc}`);
-                this.src = nextSrc;
-                alternativeIndex++;
-            } else {
-                // Ultimate fallback: Create SVG programmatically
-                console.warn('All image formats failed, creating programmatic SVG snake');
-                this.style.display = 'none';
-                
-                const svgSnake = createFallbackSVGSnake(length, snakeConfig.height + 15, angle, start);
-                svgSnake.style.position = 'absolute';
-                svgSnake.style.left = startX + 'px';
-                svgSnake.style.top = (startY - 7) + 'px';
-                svgSnake.style.zIndex = snakeConfig.zIndex;
-                
-                snake.appendChild(svgSnake);
-            }
-        };
-        
-        this.onerror = tryAlternative;
-        tryAlternative();
-    };
-    
-    // Success callback with performance logging
-    snakeImage.onload = function() {
-        console.log(`✅ Successfully loaded SVG snake: ${snakeConfig.image}`);
-        
-        // Optional: Add loading animation completion
-        this.style.opacity = '0';
-        this.style.transition = 'opacity 0.3s ease-in';
-        setTimeout(() => {
-            this.style.opacity = '1';
-        }, 50);
-    };
-    
-    snake.appendChild(snakeImage);
-    
-    // Enhanced click event with haptic feedback simulation
-    snake.addEventListener('click', () => {
-        showMessage(snakeConfig.info.title, snakeConfig.info.message, 'negative');
-        
-        // Visual feedback for interaction
-        snakeImage.style.transform = `rotate(${angle}deg) scale(1.1)`;
-        setTimeout(() => {
-            snakeImage.style.transform = `rotate(${angle}deg) scale(1)`;
-        }, 200);
-        
-        // Special effects for high-threat snakes
-        if (start >= 80) {
-            snake.style.animation = 'snakeWarning 1s ease-in-out';
         }
-    });
-    
-    board.appendChild(snake);
-}
-
-        // FALLBACK SVG CREATOR - Creates snake programmatically if all images fail
-function createFallbackSVGSnake(width, height, angle, threatLevel) {
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('width', width);
-    svg.setAttribute('height', height);
-    svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
-    svg.style.transformOrigin = '0 50%';
-    svg.style.transform = `rotate(${angle}deg)`;
-    
-    // Create gradient based on threat level
-    const gradient = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
-    const linearGradient = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
-    linearGradient.setAttribute('id', `snakeGradient${threatLevel}`);
-    
-    const stop1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
-    const stop2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
-    
-    // Color based on threat level
-    if (threatLevel >= 90) {
-        stop1.setAttribute('stop-color', '#ff0000');
-        stop2.setAttribute('stop-color', '#cc0000');
-    } else if (threatLevel >= 70) {
-        stop1.setAttribute('stop-color', '#ff6600');
-        stop2.setAttribute('stop-color', '#cc3300');
-    } else {
-        stop1.setAttribute('stop-color', '#ff9900');
-        stop2.setAttribute('stop-color', '#cc6600');
-    }
-    
-    stop1.setAttribute('offset', '0%');
-    stop2.setAttribute('offset', '100%');
-    
-    linearGradient.appendChild(stop1);
-    linearGradient.appendChild(stop2);
-    gradient.appendChild(linearGradient);
-    svg.appendChild(gradient);
-    
-    // Create snake body
-    const snakeBody = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
-    snakeBody.setAttribute('cx', width / 2);
-    snakeBody.setAttribute('cy', height / 2);
-    snakeBody.setAttribute('rx', width / 2 - 5);
-    snakeBody.setAttribute('ry', height / 2 - 5);
-    snakeBody.setAttribute('fill', `url(#snakeGradient${threatLevel})`);
-    snakeBody.setAttribute('stroke', '#990000');
-    snakeBody.setAttribute('stroke-width', '2');
-    
-    // Add snake head (circle at the end)
-    const snakeHead = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    snakeHead.setAttribute('cx', width - 15);
-    snakeHead.setAttribute('cy', height / 2);
-    snakeHead.setAttribute('r', '12');
-    snakeHead.setAttribute('fill', '#cc0000');
-    snakeHead.setAttribute('stroke', '#990000');
-    snakeHead.setAttribute('stroke-width', '2');
-    
-    // Add eyes
-    const eye1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    eye1.setAttribute('cx', width - 18);
-    eye1.setAttribute('cy', height / 2 - 4);
-    eye1.setAttribute('r', '2');
-    eye1.setAttribute('fill', 'white');
-    
-    const eye2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    eye2.setAttribute('cx', width - 18);
-    eye2.setAttribute('cy', height / 2 + 4);
-    eye2.setAttribute('r', '2');
-    eye2.setAttribute('fill', 'white');
-    
-    svg.appendChild(snakeBody);
-    svg.appendChild(snakeHead);
-    svg.appendChild(eye1);
-    svg.appendChild(eye2);
-    
-    return svg;
-}
+        
+        // IMPROVED: Enhanced ladder creation with 3D effects
         function createLadder(start, end, board) {
-            const startPos = getCellPosition(start);
-            const endPos = getCellPosition(end);
+            const startCenter = getCellCenter(start);
+            const endCenter = getCellCenter(end);
             
             const ladder = document.createElement('div');
             ladder.className = 'ladder';
             
-            // Calculate ladder position and size
-            const startX = startPos.col * 52 + 26;
-            const startY = startPos.row * 52 + 26;
-            const endX = endPos.col * 52 + 26;
-            const endY = endPos.row * 52 + 26;
+            const startX = startCenter.x;
+            const startY = startCenter.y;
+            const endX = endCenter.x;
+            const endY = endCenter.y;
             
             const length = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
             const angle = Math.atan2(endY - startY, endX - startX) * (180 / Math.PI);
             
-            // Create ladder rails
+            // Enhanced ladder rails with better 3D styling
             const leftRail = document.createElement('div');
             leftRail.className = 'ladder-rail';
-            leftRail.style.width = '4px';
+            leftRail.style.width = '6px'; // Slightly thicker for better visibility
             leftRail.style.height = length + 'px';
-            leftRail.style.left = startX - 8 + 'px';
+            leftRail.style.left = (startX - 10) + 'px';
             leftRail.style.top = startY + 'px';
             leftRail.style.transformOrigin = '50% 0%';
             leftRail.style.transform = `rotate(${angle}deg)`;
             
             const rightRail = document.createElement('div');
             rightRail.className = 'ladder-rail';
-            rightRail.style.width = '4px';
+            rightRail.style.width = '6px';
             rightRail.style.height = length + 'px';
-            rightRail.style.left = startX + 8 + 'px';
+            rightRail.style.left = (startX + 10) + 'px';
             rightRail.style.top = startY + 'px';
             rightRail.style.transformOrigin = '50% 0%';
             rightRail.style.transform = `rotate(${angle}deg)`;
@@ -1152,35 +1179,36 @@ function createFallbackSVGSnake(width, height, angle, threatLevel) {
             ladder.appendChild(leftRail);
             ladder.appendChild(rightRail);
             
-            // Create ladder rungs
-            const rungCount = Math.max(3, Math.floor(length / 20));
+            // Enhanced ladder rungs with better spacing and styling
+            const rungCount = Math.max(4, Math.floor(length / 18));
             for (let i = 1; i <= rungCount; i++) {
                 const rung = document.createElement('div');
                 rung.className = 'ladder-rung';
-                rung.style.width = '20px';
-                rung.style.height = '3px';
+                rung.style.width = '24px'; // Slightly wider for better visibility
+                rung.style.height = '4px';
                 
-                const rungX = startX - 10 + ((endX - startX) * i / (rungCount + 1));
+                const rungX = startX - 12 + ((endX - startX) * i / (rungCount + 1));
                 const rungY = startY + ((endY - startY) * i / (rungCount + 1));
                 
                 rung.style.left = rungX + 'px';
                 rung.style.top = rungY + 'px';
                 rung.style.transform = `rotate(${angle}deg)`;
+                rung.style.transformOrigin = '50% 50%';
                 
                 ladder.appendChild(rung);
             }
             
-            // Add click event for ladder information
+            // Enhanced click event for ladder information
             ladder.addEventListener('click', () => {
+                const ladderLength = Math.abs(end - start);
                 showMessage('सीढ़ी की जानकारी 🪜', 
-                    `यह सीढ़ी स्थिति ${start} से ${end} तक जाती है। नशा मुक्ति के रास्ते पर यह एक अच्छा कदम है।`, 
+                    `यह सुंदर सीढ़ी स्थिति ${start} से ${end} तक जाती है। लंबाई ${ladderLength} खानों की। नशा मुक्ति के रास्ते पर यह एक अच्छा कदम है।`, 
                     'positive');
             });
             
             board.appendChild(ladder);
         }
         
-        // Helper function for difficulty assessment
         function getSnakeDifficulty(startPosition) {
             if (startPosition >= 90) return 'extreme';
             if (startPosition >= 70) return 'hard';
@@ -1188,47 +1216,37 @@ function createFallbackSVGSnake(width, height, angle, threatLevel) {
             return 'easy';
         }
         
-        // Generic snake info for non-predefined positions
-        function getGenericSnakeInfo(startPosition) {
+        function getGenericSnakeInfo(startPosition, length) {
             const difficulty = getSnakeDifficulty(startPosition);
             const infoMap = {
                 extreme: {
                     title: 'अति खतरनाक साँप ⚠️🐍',
-                    message: 'यह बेहद खतरनाक साँप है! नशे की लत भी इसी तरह जीवन को बर्बाद करती है।'
+                    message: `यह बेहद खतरनाक साँप है! लंबाई ${length} खानों की। नशे की लत भी इसी तरह जीवन को बर्बाद करती है।`
                 },
                 hard: {
                     title: 'खतरनाक साँप 🐍⚡',
-                    message: 'खतरनाक साँप से सावधान रहें। नशा भी ऐसे ही नुकसान पहुंचाता है।'
+                    message: `खतरनाक साँप से सावधान रहें। लंबाई ${length} खानों की। नशा भी ऐसे ही नुकसान पहुंचाता है।`
                 },
                 medium: {
                     title: 'मध्यम साँप 🐍',
-                    message: 'मध्यम आकार का साँप भी खतरनाक है। हर तरह का नशा हानिकारक है।'
+                    message: `मध्यम आकार का साँप भी खतरनाक है। लंबाई ${length} खानों की। हर तरह का नशा हानिकारक है।`
                 },
                 easy: {
                     title: 'छोटा साँप 🐍',
-                    message: 'छोटा हो या बड़ा, हर साँप से बचना चाहिए। नशा भी ऐसा ही है।'
+                    message: `छोटा हो या बड़ा, हर साँप से बचना चाहिए। लंबाई ${length} खानों की। नशा भी ऐसा ही है।`
                 }
             };
             
             return infoMap[difficulty];
         }
         
-        function getSnakeHeight(startPosition) {
-            if (startPosition >= 90) return 45;
-            if (startPosition >= 70) return 38;
-            if (startPosition >= 40) return 32;
-            return 25;
-        }
-        
         function addSnakesAndLadders() {
             const board = document.getElementById('gameBoard');
             
-            // Add snakes with strategic assignment
             Object.entries(snakes).forEach(([start, end]) => {
-                createSnakeWithStrategicAssignment(parseInt(start), parseInt(end), board);
+                createSnakeWithEnhancedEffects(parseInt(start), parseInt(end), board);
             });
             
-            // Add ladders
             Object.entries(ladders).forEach(([start, end]) => {
                 createLadder(parseInt(start), parseInt(end), board);
             });
@@ -1248,65 +1266,6 @@ function createFallbackSVGSnake(width, height, angle, threatLevel) {
             }
         }
         
-        function createPlayerTokens() {
-            // Remove existing tokens
-            document.querySelectorAll('.game-piece').forEach(piece => piece.remove());
-            
-            const colors = ['red', 'blue', 'green', 'yellow'];
-            const startCell = document.getElementById('cell-1');
-            
-            if (!startCell) return;
-            
-            const cellRect = startCell.getBoundingClientRect();
-            const boardRect = document.getElementById('gameBoard').getBoundingClientRect();
-            
-            players.forEach((player, index) => {
-                const piece = document.createElement('div');
-                piece.className = `game-piece piece-${colors[index]}`;
-                piece.id = `piece-${index}`;
-                
-                // Position relative to the board
-                const offsetX = (index % 2) * 15 - 7.5;
-                const offsetY = Math.floor(index / 2) * 15 - 7.5;
-                
-                piece.style.left = (cellRect.left - boardRect.left + offsetX) + 'px';
-                piece.style.top = (cellRect.top - boardRect.top + offsetY) + 'px';
-                
-                document.getElementById('gameBoard').appendChild(piece);
-            });
-        }
-        
-        function movePlayerToken(playerIndex, targetCell) {
-            const piece = document.getElementById(`piece-${playerIndex}`);
-            const targetCellElement = document.getElementById(`cell-${targetCell}`);
-            
-            if (!piece || !targetCellElement) return;
-            
-            const cellRect = targetCellElement.getBoundingClientRect();
-            const boardRect = document.getElementById('gameBoard').getBoundingClientRect();
-            
-            // Calculate position with offset for multiple players
-            const playersOnCell = players.filter(p => p.position === targetCell);
-            const indexOnCell = playersOnCell.findIndex(p => p.id === players[playerIndex].id);
-            
-            const offsetX = (indexOnCell % 2) * 15 - 7.5;
-            const offsetY = Math.floor(indexOnCell / 2) * 15 - 7.5;
-            
-            const newX = cellRect.left - boardRect.left + offsetX;
-            const newY = cellRect.top - boardRect.top + offsetY;
-            
-            // Animate movement
-            piece.style.transition = 'all 1s ease-in-out';
-            piece.style.left = newX + 'px';
-            piece.style.top = newY + 'px';
-            piece.style.transform = 'scale(1.2)';
-            
-            // Reset scale after animation
-            setTimeout(() => {
-                piece.style.transform = 'scale(1)';
-            }, 1000);
-        }
-        
         function startGame() {
             const playerCount = parseInt(document.getElementById('playerCountSelect').value);
             const playerNames = ['लाल खिलाड़ी', 'नीला खिलाड़ी', 'हरा खिलाड़ी', 'पीला खिलाड़ी'];
@@ -1314,7 +1273,8 @@ function createFallbackSVGSnake(width, height, angle, threatLevel) {
             players = [];
             currentPlayer = 0;
             
-            // Reset game stats
+            initAudio();
+            
             gameStats = {
                 totalMoves: 0,
                 snakesHit: 0,
@@ -1346,7 +1306,6 @@ function createFallbackSVGSnake(width, height, angle, threatLevel) {
         }
         
         function restartGame() {
-            // Reset game state
             players = [];
             currentPlayer = 0;
             gameStarted = false;
@@ -1359,19 +1318,15 @@ function createFallbackSVGSnake(width, height, angle, threatLevel) {
                 startTime: null
             };
             
-            // Reset progress bar
             document.getElementById('progressFill').style.width = '0%';
             document.getElementById('progressText').textContent = '0%';
             
-            // Show setup screen
             document.getElementById('gameArea').classList.remove('active');
             document.getElementById('playerSetup').style.display = 'block';
             
-            // Reset dice
             document.getElementById('dice').textContent = '🎲';
             document.getElementById('rollBtn').disabled = false;
             
-            // Remove any existing summary
             const existingSummary = document.querySelector('.game-summary');
             if (existingSummary) {
                 existingSummary.remove();
@@ -1429,7 +1384,6 @@ function createFallbackSVGSnake(width, height, angle, threatLevel) {
             const popup = document.getElementById('messagePopup');
             popup.className = 'message-popup show';
             
-            // Add color coding based on message type
             if (type === 'positive') {
                 popup.classList.add('positive');
             } else if (type === 'negative') {
@@ -1446,7 +1400,6 @@ function createFallbackSVGSnake(width, height, angle, threatLevel) {
         }
         
         function playSound(type) {
-            // Create audio context for sound effects
             try {
                 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 const oscillator = audioContext.createOscillator();
@@ -1455,7 +1408,6 @@ function createFallbackSVGSnake(width, height, angle, threatLevel) {
                 oscillator.connect(gainNode);
                 gainNode.connect(audioContext.destination);
                 
-                // Different frequencies for different events
                 switch(type) {
                     case 'snake':
                         oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
@@ -1513,7 +1465,6 @@ function createFallbackSVGSnake(width, height, angle, threatLevel) {
             const player = players[currentPlayer];
             let newPosition = Math.min(player.position + steps, 100);
             
-            // Can only win by exact count
             if (player.position + steps > 100) {
                 showMessage('बहुत ज्यादा!', `${player.name} को ${100 - player.position} की जरूरत है, लेकिन ${steps} आया। फिर कोशिश करें!`, 'neutral');
                 nextPlayer(steps);
@@ -1529,7 +1480,6 @@ function createFallbackSVGSnake(width, height, angle, threatLevel) {
             updateGameStatus();
             updateProgressBar();
             
-            // Check for win condition
             if (player.position === 100) {
                 setTimeout(() => {
                     showMessage('बधाई हो! 🎉', `${player.name} ने खेल जीत लिया! नशा मुक्त जीवन की ओर यह एक बड़ा कदम है।`, 'positive');
@@ -1539,10 +1489,9 @@ function createFallbackSVGSnake(width, height, angle, threatLevel) {
                 return;
             }
             
-            // Check for snake, ladder, or special cells after a delay
             setTimeout(() => {
                 checkSpecialCells(player, steps);
-            }, 1000);
+            }, 1200);
         }
         
         function checkSpecialCells(player, steps) {
@@ -1553,7 +1502,8 @@ function createFallbackSVGSnake(width, height, angle, threatLevel) {
                 player.position = snakes[player.position];
                 
                 movePlayerToken(currentPlayer, player.position);
-                showMessage('साँप! 🐍', `ओह नहीं! ${player.name} साँप के मुँह में फँस गए और ${oldPosition} से ${player.position} पर आ गए। नशा भी ऐसे ही आपको नीचे ले जाता है।`, 'negative');
+                const snakeLength = Math.abs(oldPosition - player.position);
+                showMessage('साँप! 🐍', `ओह नहीं! ${player.name} साँप के मुँह में फँस गए और ${oldPosition} से ${player.position} पर आ गए। ${snakeLength} खानों का नुकसान! नशा भी ऐसे ही आपको नीचे ले जाता है।`, 'negative');
                 updatePlayerInfo();
                 updateProgressBar();
             } else if (ladders[player.position]) {
@@ -1562,11 +1512,11 @@ function createFallbackSVGSnake(width, height, angle, threatLevel) {
                 const oldPosition = player.position;
                 player.position = ladders[player.position];
                 movePlayerToken(currentPlayer, player.position);
-                showMessage('सीढ़ी! 🪜', `वाह! ${player.name} ने सीढ़ी पकड़ ली और ${oldPosition} से ${player.position} पर चढ़ गए। नशा मुक्ति के रास्ते पर यह एक अच्छा कदम है।`, 'positive');
+                const ladderLength = Math.abs(player.position - oldPosition);
+                showMessage('सीढ़ी! 🪜', `वाह! ${player.name} ने सुंदर सीढ़ी पकड़ ली और ${oldPosition} से ${player.position} पर चढ़ गए। ${ladderLength} खानों का फायदा! नशा मुक्ति के रास्ते पर यह एक अच्छा कदम है।`, 'positive');
                 updatePlayerInfo();
                 updateProgressBar();
                 
-                // Check for win after ladder
                 if (player.position === 100) {
                     setTimeout(() => {
                         showMessage('बधाई हो! 🎉', `${player.name} ने सीढ़ी के साथ खेल जीत लिया! नशा मुक्त जीवन की ओर यह एक बड़ा कदम है।`, 'positive');
@@ -1589,7 +1539,6 @@ function createFallbackSVGSnake(width, height, angle, threatLevel) {
         }
         
         function nextPlayer(steps) {
-            // Move to next player if not a 6
             if (steps !== 6) {
                 currentPlayer = (currentPlayer + 1) % players.length;
                 updateGameStatus();
@@ -1606,60 +1555,68 @@ function createFallbackSVGSnake(width, height, angle, threatLevel) {
         }
         
         function showGameSummary(winner) {
-            const gameTime = Math.round((Date.now() - gameStats.startTime) / 1000);
-            const minutes = Math.floor(gameTime / 60);
-            const seconds = gameTime % 60;
+            const gameTime = Math.round((Date.now() - gameStats.startTime) / 1000 / 60);
             
             const summaryHTML = `
-                <div class="game-summary" style="background: white; border-radius: 15px; padding: 25px; margin: 20px 0; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
-                    <h2 style="color: #2c3e50; font-size: 1.5em; margin-bottom: 15px; text-align: center;">🎉 खेल समाप्त - ${winner.name} की जीत! 🎉</h2>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
-                        <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; text-align: center;">
-                            <div style="font-size: 2em; font-weight: bold; color: #3498db;">${gameTime}</div>
-                            <div style="color: #7f8c8d; font-size: 0.9em; margin-top: 5px;">कुल समय (सेकंड)</div>
+                <div class="game-summary">
+                    <h3>🏆 खेल समाप्त - विजेता: ${winner.name}</h3>
+                    <div class="summary-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">${gameTime}</div>
+                            <div class="stat-label">मिनट</div>
                         </div>
-                        <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; text-align: center;">
-                            <div style="font-size: 2em; font-weight: bold; color: #3498db;">${gameStats.totalMoves}</div>
-                            <div style="color: #7f8c8d; font-size: 0.9em; margin-top: 5px;">कुल चालें</div>
+                        <div class="stat-item">
+                            <div class="stat-value">${gameStats.totalMoves}</div>
+                            <div class="stat-label">कुल चालें</div>
                         </div>
-                        <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; text-align: center;">
-                            <div style="font-size: 2em; font-weight: bold; color: #3498db;">${gameStats.snakesHit}</div>
-                            <div style="color: #7f8c8d; font-size: 0.9em; margin-top: 5px;">साँप मिले</div>
+                        <div class="stat-item">
+                            <div class="stat-value">${gameStats.snakesHit}</div>
+                            <div class="stat-label">साँप मिले</div>
                         </div>
-                        <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; text-align: center;">
-                            <div style="font-size: 2em; font-weight: bold; color: #3498db;">${gameStats.laddersUsed}</div>
-                            <div style="color: #7f8c8d; font-size: 0.9em; margin-top: 5px;">सीढ़ी इस्तेमाल</div>
+                        <div class="stat-item">
+                            <div class="stat-value">${gameStats.laddersUsed}</div>
+                            <div class="stat-label">सीढ़ियाँ मिलीं</div>
                         </div>
-                        <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; text-align: center;">
-                            <div style="font-size: 2em; font-weight: bold; color: #3498db;">${gameStats.awarenessMessages}</div>
-                            <div style="color: #7f8c8d; font-size: 0.9em; margin-top: 5px;">जागरूकता संदेश</div>
+                        <div class="stat-item">
+                            <div class="stat-value">${gameStats.awarenessMessages}</div>
+                            <div class="stat-label">जागरूकता संदेश</div>
                         </div>
-                        <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; text-align: center;">
-                            <div style="font-size: 2em; font-weight: bold; color: #3498db;">${gameStats.supportMessages}</div>
-                            <div style="color: #7f8c8d; font-size: 0.9em; margin-top: 5px;">सहायता संदेश</div>
+                        <div class="stat-item">
+                            <div class="stat-value">${gameStats.supportMessages}</div>
+                            <div class="stat-label">सहायता संसाधन</div>
                         </div>
                     </div>
-                    <div style="text-align: center; margin-top: 20px;">
-                        <p style="font-size: 1.1em; color: #2c3e50;">
-                            खेल का समय: ${minutes} मिनट ${seconds} सेकंड<br>
-                            विजेता की कुल चालें: ${winner.moves}<br>
-                            <strong style="color: #27ae60;">नशा मुक्त भारत के लिए आपका योगदान सराहनीय है!</strong>
-                        </p>
-                    </div>
+                    <p style="text-align: center; color: #2c3e50; margin-top: 15px; font-style: italic;">
+                        "${winner.name}" ने ${winner.moves} चालों में जीत हासिल की! 
+                        नशा मुक्ति की यात्रा में यह एक प्रेरणादायक उदाहरण है।
+                    </p>
                 </div>
             `;
             
-            // Insert summary before controls
-            const controls = document.querySelector('.controls');
-            controls.insertAdjacentHTML('beforebegin', summaryHTML);
+            document.getElementById('gameArea').insertAdjacentHTML('beforeend', summaryHTML);
         }
         
-        // Event listeners
-        document.getElementById('rollBtn').addEventListener('click', rollDice);
-        document.getElementById('dice').addEventListener('click', rollDice);
-        
-        // Close popup on overlay click
-        document.getElementById('overlay').addEventListener('click', closePopup);
+        // Initialize click handlers for dice
+        document.addEventListener('DOMContentLoaded', function() {
+            const diceElement = document.getElementById('dice');
+            const rollButton = document.getElementById('rollBtn');
+            
+            if (diceElement) {
+                diceElement.addEventListener('click', rollDice);
+            }
+            
+            if (rollButton) {
+                rollButton.addEventListener('click', rollDice);
+            }
+            
+            // Add keyboard support for rolling dice (spacebar)
+            document.addEventListener('keydown', function(event) {
+                if (event.code === 'Space' && gameStarted && !document.getElementById('rollBtn').disabled) {
+                    event.preventDefault();
+                    rollDice();
+                }
+            });
+        });
     </script>
 </body>
 </html>
